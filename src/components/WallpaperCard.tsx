@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 interface WallpaperCardProps {
+  id: number;
   image: string;
   title: string;
   category: string;
@@ -11,12 +12,45 @@ interface WallpaperCardProps {
   likes: number;
 }
 
-const WallpaperCard = ({ image, title, category, views, downloads, likes }: WallpaperCardProps) => {
+const WallpaperCard = ({ id, image, title, category, views, downloads, likes }: WallpaperCardProps) => {
   const formatNumber = (num: number) => {
     if (num >= 1000) {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
+  };
+
+  const handleDownload = () => {
+    // Create a download link
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = `${title.replace(/\s+/g, '-').toLowerCase()}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: `Check out this amazing wallpaper: ${title}`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  const handleLike = () => {
+    // In a real app, this would update the backend
+    console.log('Liked wallpaper:', id);
   };
 
   return (
@@ -47,7 +81,12 @@ const WallpaperCard = ({ image, title, category, views, downloads, likes }: Wall
           </div>
           
           <div className="absolute top-3 right-3">
-            <Button variant="wallcraft-ghost" size="icon" className="text-white hover:text-wallcraft-cyan">
+            <Button 
+              variant="wallcraft-ghost" 
+              size="icon" 
+              className="text-white hover:text-wallcraft-cyan"
+              onClick={handleLike}
+            >
               <Heart className="h-4 w-4" />
             </Button>
           </div>
@@ -83,11 +122,20 @@ const WallpaperCard = ({ image, title, category, views, downloads, likes }: Wall
         </div>
 
         <div className="flex gap-2">
-          <Button variant="wallcraft" size="sm" className="flex-1">
+          <Button 
+            variant="wallcraft" 
+            size="sm" 
+            className="flex-1"
+            onClick={handleDownload}
+          >
             <Download className="h-3 w-3 mr-1" />
             Download
           </Button>
-          <Button variant="wallcraft-outline" size="sm">
+          <Button 
+            variant="wallcraft-outline" 
+            size="sm"
+            onClick={handleShare}
+          >
             <Share2 className="h-3 w-3" />
           </Button>
         </div>

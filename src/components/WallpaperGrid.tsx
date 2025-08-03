@@ -104,6 +104,7 @@ const WallpaperGrid = () => {
         {wallpapers.map((wallpaper) => (
           <WallpaperCard
             key={wallpaper.id}
+            id={wallpaper.id}
             image={wallpaper.image}
             title={wallpaper.title}
             category={wallpaper.category}
