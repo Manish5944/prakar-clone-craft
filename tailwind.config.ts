@@ -61,7 +61,27 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				wallcraft: {
+					dark: 'hsl(var(--wallcraft-dark))',
+					darker: 'hsl(var(--wallcraft-darker))',
+					card: 'hsl(var(--wallcraft-card))',
+					'card-hover': 'hsl(var(--wallcraft-card-hover))',
+					cyan: 'hsl(var(--wallcraft-cyan))',
+					blue: 'hsl(var(--wallcraft-blue))',
+					glow: 'hsl(var(--wallcraft-glow))'
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-card': 'var(--gradient-card)'
+			},
+			boxShadow: {
+				'glow': 'var(--shadow-glow)',
+				'card': 'var(--shadow-card)'
+			},
+			transitionTimingFunction: {
+				'smooth': 'var(--transition-smooth)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
