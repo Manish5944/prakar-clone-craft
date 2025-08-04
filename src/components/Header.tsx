@@ -1,6 +1,7 @@
-import { Search, Menu, ChevronDown } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +21,13 @@ const Header = () => {
         {/* Top bar */}
         <div className="flex items-center justify-between py-3">
           <div className="flex items-center gap-4">
-            <Button variant="wallcraft-ghost" size="icon" className="text-white">
-              <Menu className="h-5 w-5" />
-            </Button>
+            <SidebarTrigger className="text-white hover:bg-wallcraft-card">
+              <div className="flex flex-col gap-1">
+                <div className="w-5 h-0.5 bg-current"></div>
+                <div className="w-5 h-0.5 bg-current"></div>
+                <div className="w-5 h-0.5 bg-current"></div>
+              </div>
+            </SidebarTrigger>
             <div className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               WallCraft
             </div>
