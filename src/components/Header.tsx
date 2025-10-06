@@ -1,7 +1,11 @@
-import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2 } from "lucide-react";
+import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2, Send, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +14,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      console.log("Searching for:", searchQuery);
+    }
+  };
+
   const navItems = [
     { name: "Models", icon: Box },
     { name: "Art", icon: Palette },
@@ -35,7 +66,7 @@ const Header = () => {
               </div>
             </SidebarTrigger>
             <div className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              WallCraft
+              Prompt Copy
             </div>
           </div>
           
@@ -43,19 +74,55 @@ const Header = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input 
-                placeholder="Search wallpaper"
-                className="pl-10 pr-10 bg-wallcraft-card border-wallcraft-card text-foreground placeholder:text-muted-foreground rounded-md h-9"
+                placeholder="Search prompts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                className="pl-10 pr-12 bg-wallcraft-card border-wallcraft-card text-foreground placeholder:text-muted-foreground rounded-md h-9"
               />
-              <Button variant="wallcraft-ghost" size="icon" className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7">
-                <div className="w-4 h-4 bg-muted-foreground rounded-full"></div>
+              <Button 
+                variant="wallcraft-ghost" 
+                size="icon" 
+                onClick={handleSearch}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
+              >
+                <Send className="h-4 w-4 text-muted-foreground" />
               </Button>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="wallcraft-ghost" size="icon" className="text-white">
-              <div className="w-6 h-6 bg-wallcraft-cyan rounded-full"></div>
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="wallcraft-ghost" size="icon" className="text-white">
+                    <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
+                      <User className="h-5 w-5" />
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-wallcraft-card border-wallcraft-card" align="end">
+                  <DropdownMenuItem className="text-foreground hover:bg-wallcraft-card-hover">
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="text-foreground hover:bg-wallcraft-card-hover cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                variant="wallcraft-ghost" 
+                onClick={() => navigate("/auth")}
+                className="text-foreground hover:text-foreground"
+              >
+                Sign In
+              </Button>
+            )}
           </div>
         </div>
 
