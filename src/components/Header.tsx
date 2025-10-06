@@ -1,4 +1,4 @@
-import { Search, ChevronDown } from "lucide-react";
+import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -11,8 +11,14 @@ import {
 
 const Header = () => {
   const navItems = [
-    "HOME", "EXCLUSIVE", "PARALLAX", "VIDEO", "AI ART", 
-    "24 HOURS", "DOUBLE", "RATING", "AUTHORS", "ANDROID 12"
+    { name: "Models", icon: Box },
+    { name: "Art", icon: Palette },
+    { name: "Logos", icon: Grid3x3 },
+    { name: "Graphics", icon: Image },
+    { name: "Productivity", icon: Pencil },
+    { name: "Marketing", icon: Briefcase },
+    { name: "Photography", icon: Camera },
+    { name: "Games", icon: Gamepad2 }
   ];
 
   return (
@@ -54,32 +60,19 @@ const Header = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex items-center justify-between py-2 border-t border-wallcraft-card">
-          <div className="flex items-center gap-8 overflow-x-auto">
+        <nav className="flex items-center justify-center py-3 border-t border-wallcraft-card">
+          <div className="flex items-center gap-6 overflow-x-auto">
             {navItems.map((item) => (
               <Button 
-                key={item} 
+                key={item.name} 
                 variant="wallcraft-ghost" 
-                className="text-xs font-medium px-2 py-1 whitespace-nowrap text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-2 text-sm font-medium px-3 py-2 whitespace-nowrap text-muted-foreground hover:text-foreground"
               >
-                {item}
+                <item.icon className="h-4 w-4" />
+                {item.name}
               </Button>
             ))}
           </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="wallcraft-ghost" className="text-xs font-medium text-muted-foreground hover:text-foreground">
-                POPULAR <ChevronDown className="h-3 w-3 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-wallcraft-card border-wallcraft-card">
-              <DropdownMenuItem className="text-foreground hover:bg-wallcraft-card-hover">Most Viewed</DropdownMenuItem>
-              <DropdownMenuItem className="text-foreground hover:bg-wallcraft-card-hover">Most Downloaded</DropdownMenuItem>
-              <DropdownMenuItem className="text-foreground hover:bg-wallcraft-card-hover">Most Liked</DropdownMenuItem>
-              <DropdownMenuItem className="text-foreground hover:bg-wallcraft-card-hover">Trending</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </nav>
       </div>
     </header>
