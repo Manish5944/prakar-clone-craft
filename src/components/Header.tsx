@@ -47,13 +47,27 @@ const Header = () => {
       icon: Box,
       subcategories: [
         "All Models prompts",
-        "ChatGPT prompts",
-        "Claude prompts",
-        "DALL-E prompts",
-        "Midjourney prompts",
-        "Stable Diffusion prompts",
-        "GPT-4 prompts",
-        "Gemini prompts"
+        "ChatGPT Image",
+        "Claude",
+        "DALL·E",
+        "DeepSeek",
+        "FLUX",
+        "Gemini",
+        "Gemini Image",
+        "GPT",
+        "Grok",
+        "Grok Image",
+        "Hailuo AI",
+        "Ideogram",
+        "Imagen",
+        "KLING AI",
+        "Leonardo AI",
+        "Llama",
+        "Midjourney",
+        "Midjourney Video",
+        "Sora",
+        "Stable Diffusion",
+        "Veo prompts"
       ]
     },
     { 
@@ -61,24 +75,21 @@ const Header = () => {
       icon: Palette,
       subcategories: [
         "All Art prompts",
-        "Digital Art prompts",
-        "Illustration prompts",
-        "Painting prompts",
-        "Abstract Art prompts",
-        "Portrait prompts",
-        "Landscape prompts"
+        "Illustrations",
+        "Anime",
+        "Cartoon",
+        "Painting",
+        "Illustration",
+        "Unique Styles"
       ]
     },
     { 
       name: "Logos", 
       icon: Grid3x3,
       subcategories: [
-        "All Logo prompts",
-        "Business Logos",
-        "Minimalist Logos",
-        "Vintage Logos",
-        "Modern Logos",
-        "Typography Logos"
+        "All Logos prompts",
+        "Logo prompts",
+        "Icon prompts"
       ]
     },
     { 
@@ -86,11 +97,9 @@ const Header = () => {
       icon: Image,
       subcategories: [
         "All Graphics prompts",
-        "UI/UX Design",
-        "Social Media Graphics",
-        "Infographics",
-        "Icon Design",
-        "Banner Design"
+        "Pattern",
+        "Product Design",
+        "Profile Picture"
       ]
     },
     { 
@@ -98,11 +107,9 @@ const Header = () => {
       icon: Pencil,
       subcategories: [
         "All Productivity prompts",
-        "Writing prompts",
-        "Code Generation",
-        "Data Analysis",
-        "Automation prompts",
-        "Research prompts"
+        "Productivity",
+        "Writing",
+        "Coding"
       ]
     },
     { 
@@ -110,11 +117,9 @@ const Header = () => {
       icon: Briefcase,
       subcategories: [
         "All Marketing prompts",
-        "SEO prompts",
-        "Content Marketing",
-        "Social Media",
-        "Email Marketing",
-        "Ad Copy prompts"
+        "Marketing",
+        "Business",
+        "Social Media"
       ]
     },
     { 
@@ -122,11 +127,8 @@ const Header = () => {
       icon: Camera,
       subcategories: [
         "All Photography prompts",
-        "Portrait Photography",
-        "Product Photography",
-        "Nature Photography",
-        "Street Photography",
-        "Food Photography"
+        "Photography",
+        "Photography Style"
       ]
     },
     { 
@@ -134,11 +136,9 @@ const Header = () => {
       icon: Gamepad2,
       subcategories: [
         "All Games prompts",
-        "Character Design",
-        "Game Assets",
-        "Environment Design",
-        "Concept Art",
-        "Game Story prompts"
+        "3D",
+        "Fun & Games",
+        "Video Game Art"
       ]
     }
   ];

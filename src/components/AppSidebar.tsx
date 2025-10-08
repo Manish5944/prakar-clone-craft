@@ -1,4 +1,4 @@
-import { Home, Heart, Download } from "lucide-react";
+import { Home, Heart, Download, Settings, Crown, HelpCircle, Star, Share2, Music, Users, FileText } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 import {
@@ -17,6 +17,20 @@ const mainNavItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Favorites", url: "/favorites", icon: Heart },
   { title: "Downloads", url: "/downloads", icon: Download },
+];
+
+const settingsItems = [
+  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Premium", url: "/premium", icon: Crown },
+  { title: "Support", url: "/support", icon: HelpCircle },
+];
+
+const socialItems = [
+  { title: "Rate App", url: "#rate", icon: Star, external: true },
+  { title: "Share App", url: "#share", icon: Share2, external: true },
+  { title: "Follow on TikTok", url: "https://tiktok.com", icon: Music, external: true },
+  { title: "Artist Program", url: "/artist-program", icon: Users },
+  { title: "Terms & Privacy", url: "/terms", icon: FileText },
 ];
 
 export function AppSidebar() {
@@ -60,6 +74,66 @@ export function AppSidebar() {
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       <span>{item.title}</span>
                     </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Settings */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-muted-foreground font-semibold text-xs uppercase tracking-wide px-3 py-2">
+            Settings
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={({ isActive }) => getNavClass(isActive)}
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Social & More */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-muted-foreground font-semibold text-xs uppercase tracking-wide px-3 py-2">
+            More
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {socialItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    {item.external && item.url.startsWith('http') ? (
+                      <a 
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={getNavClass(false)}
+                      >
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </a>
+                    ) : (
+                      <NavLink 
+                        to={item.url} 
+                        className={({ isActive }) => getNavClass(isActive)}
+                      >
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
