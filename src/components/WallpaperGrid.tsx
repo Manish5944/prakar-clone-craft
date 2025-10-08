@@ -11,8 +11,8 @@ const WallpaperGrid = () => {
     {
       id: 1,
       image: gamingSetup,
-      title: "Dark Character",
-      category: "3D • Mobile Wallpaper",
+      title: "ChatGPT Character Design",
+      category: "ChatGPT • Character",
       views: 1247,
       downloads: 892,
       likes: 156
@@ -20,8 +20,8 @@ const WallpaperGrid = () => {
     {
       id: 2,
       image: abstractCircuit,
-      title: "Abstract Art",
-      category: "Abstract • Mobile Wallpaper",
+      title: "DALL-E Abstract Art",
+      category: "DALL-E • Abstract",
       views: 2109,
       downloads: 1789,
       likes: 321
@@ -29,8 +29,8 @@ const WallpaperGrid = () => {
     {
       id: 3,
       image: neonFlowers,
-      title: "Beautiful Flowers",
-      category: "Flowers • Mobile Wallpaper",
+      title: "Midjourney Flowers",
+      category: "Midjourney • Nature",
       views: 1345,
       downloads: 987,
       likes: 189
@@ -38,8 +38,8 @@ const WallpaperGrid = () => {
     {
       id: 4,
       image: codingNight,
-      title: "Neon Gaming",
-      category: "Gaming • Mobile Wallpaper",
+      title: "Stable Diffusion Gaming",
+      category: "Stable Diffusion • Gaming",
       views: 2341,
       downloads: 1567,
       likes: 234
@@ -47,8 +47,8 @@ const WallpaperGrid = () => {
     {
       id: 5,
       image: cyberWolf,
-      title: "Tech Laptop",
-      category: "Technology • Mobile Wallpaper",
+      title: "Leonardo AI Animal",
+      category: "Leonardo AI • Animals",
       views: 1543,
       downloads: 1098,
       likes: 187
@@ -56,8 +56,8 @@ const WallpaperGrid = () => {
     {
       id: 6,
       image: cyberCity,
-      title: "Wild Animals",
-      category: "Animals • Mobile Wallpaper",
+      title: "Claude Product Design",
+      category: "Claude • Product Design",
       views: 1789,
       downloads: 1234,
       likes: 267
@@ -65,8 +65,8 @@ const WallpaperGrid = () => {
     {
       id: 7,
       image: gamingSetup,
-      title: "Cyberpunk",
-      category: "Abstract • Mobile Wallpaper",
+      title: "Gemini Logo Design",
+      category: "Gemini • Logo",
       views: 3456,
       downloads: 2103,
       likes: 445
@@ -74,8 +74,8 @@ const WallpaperGrid = () => {
     {
       id: 8,
       image: codingNight,
-      title: "Coding Work",
-      category: "Technology • Mobile Wallpaper",
+      title: "GPT-4 Code Pattern",
+      category: "GPT-4 • Pattern",
       views: 2876,
       downloads: 2134,
       likes: 456
@@ -83,8 +83,8 @@ const WallpaperGrid = () => {
     {
       id: 9,
       image: cyberCity,
-      title: "Fantasy World",
-      category: "Fantasy • Mobile Wallpaper",
+      title: "FLUX Icon Design",
+      category: "FLUX • Icon",
       views: 2234,
       downloads: 1678,
       likes: 345
@@ -94,9 +94,9 @@ const WallpaperGrid = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-2">All Wallpapers</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-2">All Prompts</h1>
         <p className="text-muted-foreground text-sm">
-          {wallpapers.length} wallpapers found • All images optimized for mobile • Sorted by popular
+          {wallpapers.length} prompts found • Sorted by popular
         </p>
       </div>
 

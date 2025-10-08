@@ -219,7 +219,7 @@ const Header = () => {
 
         {/* Navigation */}
         <nav className="flex items-center justify-center py-3 border-t border-wallcraft-card">
-          <div className="flex items-center gap-2 overflow-x-auto">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-wallcraft-card hover:scrollbar-thumb-wallcraft-card-hover scrollbar-track-transparent pb-2">
             {navItems.map((item) => (
               <DropdownMenu key={item.name}>
                 <DropdownMenuTrigger asChild>
