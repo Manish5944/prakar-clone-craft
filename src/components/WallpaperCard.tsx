@@ -1,4 +1,4 @@
-import { Heart, Download, Share2, Eye } from "lucide-react";
+import { Heart, Download, Share2, Eye, Copy, FileText, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,9 +13,13 @@ interface WallpaperCardProps {
   views: number;
   downloads: number;
   likes: number;
+  promptText?: string;
+  price?: number;
+  rating?: number;
+  rank?: number;
 }
 
-const WallpaperCard = ({ id, image, title, category, views, downloads, likes }: WallpaperCardProps) => {
+const WallpaperCard = ({ id, image, title, category, views, downloads, likes, promptText, price = 0, rating = 0, rank }: WallpaperCardProps) => {
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [promptId, setPromptId] = useState<string | null>(null);
@@ -132,6 +136,31 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes }: 
     }
   };
 
+  const handleCopyPrompt = async () => {
+    if (promptText) {
+      await navigator.clipboard.writeText(promptText);
+      toast({
+        title: "Copied!",
+        description: "Prompt copied to clipboard"
+      });
+    } else {
+      toast({
+        title: "No Prompt",
+        description: "No prompt text available",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCopyTemplate = async () => {
+    const template = `Title: ${title}\nCategory: ${category}\nPrompt: ${promptText || "N/A"}`;
+    await navigator.clipboard.writeText(template);
+    toast({
+      title: "Template Copied!",
+      description: "Template copied to clipboard"
+    });
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -211,32 +240,39 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes }: 
   };
 
   return (
-    <div className="group relative bg-wallcraft-card rounded-lg overflow-hidden hover:bg-wallcraft-card-hover transition-all duration-300 hover:shadow-card">
+    <div className="group relative bg-wallcraft-card rounded-lg overflow-hidden transition-all duration-300 hover:shadow-card">
       {/* Image container */}
-      <div className="relative aspect-video overflow-hidden">
+      <div className="relative aspect-[3/4] overflow-hidden">
         <img 
           src={image} 
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-full object-cover"
         />
         
-        {/* Overlay with stats */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="absolute top-3 left-3 flex gap-2">
-            <div className="flex items-center gap-1 text-white text-xs bg-black/50 px-2 py-1 rounded">
-              <Eye className="h-3 w-3" />
-              {formatNumber(views)}
-            </div>
-            <div className="flex items-center gap-1 text-white text-xs bg-black/50 px-2 py-1 rounded">
-              <Download className="h-3 w-3" />
-              {formatNumber(downloads)}
-            </div>
-            <div className="flex items-center gap-1 text-white text-xs bg-black/50 px-2 py-1 rounded">
-              <Heart className="h-3 w-3" />
-              {formatNumber(likes)}
-            </div>
+        {/* Rank badge */}
+        {rank && (
+          <div className="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded">
+            {rank}
           </div>
-          
+        )}
+        
+        {/* Category badge */}
+        <div className="absolute top-2 left-2 bg-wallcraft-cyan/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+          <Badge variant="secondary" className="bg-transparent border-none p-0 text-white">
+            {category}
+          </Badge>
+        </div>
+
+        {/* Rating */}
+        {rating > 0 && (
+          <div className="absolute top-2 right-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+            {rating.toFixed(1)} <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+          </div>
+        )}
+        
+        {/* Hover/Tap Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 transition-opacity duration-300">
+          {/* Like button */}
           <div className="absolute top-3 right-3">
             <Button 
               variant="wallcraft-ghost" 
@@ -247,55 +283,55 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes }: 
               <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
             </Button>
           </div>
+
+          {/* Bottom section with buttons */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
+            {/* Copy Prompt Button */}
+            <Button 
+              variant="wallcraft" 
+              size="sm" 
+              className="w-full"
+              onClick={handleCopyPrompt}
+            >
+              <Copy className="h-3 w-3 mr-2" />
+              Copy Prompt
+            </Button>
+
+            {/* Open Prompt Button */}
+            <Button 
+              variant="wallcraft-outline" 
+              size="sm" 
+              className="w-full"
+              onClick={handleDownload}
+            >
+              <FileText className="h-3 w-3 mr-2" />
+              Open Prompt
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-foreground group-hover:text-wallcraft-cyan transition-colors">
-            {title}
-          </h3>
-          <Badge variant="secondary" className="text-xs bg-wallcraft-cyan/10 text-wallcraft-cyan border-wallcraft-cyan/20">
-            {category}
-          </Badge>
-        </div>
+      <div className="p-3 space-y-2">
+        <h3 className="font-semibold text-foreground text-sm line-clamp-2">
+          {title}
+        </h3>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Eye className="h-3 w-3" />
-              {formatNumber(views)}
+        {price !== undefined && (
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-wallcraft-cyan">
+              {price === 0 ? 'Free' : `$${price.toFixed(2)}`}
             </span>
-            <span className="flex items-center gap-1">
-              <Download className="h-3 w-3" />
-              {formatNumber(downloads)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Heart className="h-3 w-3" />
-              {formatNumber(likes)}
-            </span>
+            <Button 
+              variant="wallcraft-ghost" 
+              size="sm"
+              onClick={handleCopyTemplate}
+            >
+              <FileText className="h-3 w-3 mr-1" />
+              Template
+            </Button>
           </div>
-        </div>
-
-        <div className="flex gap-2">
-          <Button 
-            variant="wallcraft" 
-            size="sm" 
-            className="flex-1"
-            onClick={handleDownload}
-          >
-            <Download className="h-3 w-3 mr-1" />
-            Download
-          </Button>
-          <Button 
-            variant="wallcraft-outline" 
-            size="sm"
-            onClick={handleShare}
-          >
-            <Share2 className="h-3 w-3" />
-          </Button>
-        </div>
+        )}
       </div>
     </div>
   );

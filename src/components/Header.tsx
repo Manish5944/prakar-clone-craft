@@ -1,4 +1,4 @@
-import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2, Send, User, LogOut } from "lucide-react";
+import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2, Send, User, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -183,6 +183,18 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            {user && (
+              <Button 
+                variant="wallcraft-ghost" 
+                size="icon" 
+                className="text-white relative"
+                onClick={() => navigate("/notifications")}
+              >
+                <Bell className="h-5 w-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </Button>
+            )}
+            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

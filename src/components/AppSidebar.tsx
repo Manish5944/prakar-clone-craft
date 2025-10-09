@@ -1,4 +1,4 @@
-import { Home, Heart, Download, Settings, Crown, HelpCircle, Star, Share2, Music, Users, FileText } from "lucide-react";
+import { Home, Heart, Download, Settings, Crown, HelpCircle, Star, Share2, Music, Users, FileText, Shield } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 import {
@@ -31,6 +31,7 @@ const socialItems = [
   { title: "Follow on TikTok", url: "https://tiktok.com", icon: Music, external: true },
   { title: "Artist Program", url: "/artist-program", icon: Users },
   { title: "Terms & Privacy", url: "/terms", icon: FileText },
+  { title: "Admin Panel", url: "/admin", icon: Shield },
 ];
 
 export function AppSidebar() {
