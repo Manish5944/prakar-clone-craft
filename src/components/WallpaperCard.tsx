@@ -1,9 +1,11 @@
-import { Heart, Download, Share2, Eye, Copy, FileText, Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import ImageGalleryModal from "./ImageGalleryModal";
+import PromptDetailModal from "./PromptDetailModal";
 
 interface WallpaperCardProps {
   id: number;
@@ -23,6 +25,8 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [promptId, setPromptId] = useState<string | null>(null);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
     checkIfLiked();
@@ -84,6 +88,15 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
+  };
+
+  const handleImageClick = () => {
+    setShowGalleryModal(true);
+  };
+
+  const handleOpenPrompt = () => {
+    setShowGalleryModal(false);
+    setShowDetailModal(true);
   };
 
   const handleDownload = async () => {
@@ -239,10 +252,21 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
     }
   };
 
+  // Mock data for gallery - in real app, fetch from database based on category
+  const galleryImages = Array(9).fill(null).map((_, index) => ({
+    id: id * 10 + index,
+    image: image,
+    title: `${title} - Variation ${index + 1}`
+  }));
+
   return (
-    <div className="group relative bg-wallcraft-card rounded-lg overflow-hidden transition-all duration-300 hover:shadow-card">
-      {/* Image container */}
-      <div className="relative aspect-[3/4] overflow-hidden">
+    <>
+      <div className="group relative bg-wallcraft-card rounded-lg overflow-hidden transition-all duration-300 hover:shadow-card cursor-pointer">
+        {/* Image container */}
+        <div 
+          className="relative aspect-[3/4] overflow-hidden"
+          onClick={handleImageClick}
+        >
         <img 
           src={image} 
           alt={title}
@@ -270,70 +294,55 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
           </div>
         )}
         
-        {/* Hover/Tap Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 transition-opacity duration-300">
+        {/* Hover/Tap Overlay - Just Like Button */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           {/* Like button */}
           <div className="absolute top-3 right-3">
             <Button 
               variant="wallcraft-ghost" 
               size="icon" 
-              className={`text-white hover:text-wallcraft-cyan ${isLiked ? 'text-red-500' : ''}`}
+              className={`text-white hover:text-wallcraft-cyan bg-black/50 ${isLiked ? 'text-red-500' : ''}`}
               onClick={handleLike}
             >
               <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
             </Button>
           </div>
-
-          {/* Bottom section with buttons */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-            {/* Copy Prompt Button */}
-            <Button 
-              variant="wallcraft" 
-              size="sm" 
-              className="w-full"
-              onClick={handleCopyPrompt}
-            >
-              <Copy className="h-3 w-3 mr-2" />
-              Copy Prompt
-            </Button>
-
-            {/* Open Prompt Button */}
-            <Button 
-              variant="wallcraft-outline" 
-              size="sm" 
-              className="w-full"
-              onClick={handleDownload}
-            >
-              <FileText className="h-3 w-3 mr-2" />
-              Open Prompt
-            </Button>
-          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-3 space-y-2">
-        <h3 className="font-semibold text-foreground text-sm line-clamp-2">
-          {title}
-        </h3>
-
-        {price !== undefined && (
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-wallcraft-cyan">
-              {price === 0 ? 'Free' : `$${price.toFixed(2)}`}
-            </span>
-            <Button 
-              variant="wallcraft-ghost" 
-              size="sm"
-              onClick={handleCopyTemplate}
-            >
-              <FileText className="h-3 w-3 mr-1" />
-              Template
-            </Button>
-          </div>
-        )}
+        {/* Content */}
+        <div className="p-3">
+          <h3 className="font-semibold text-foreground text-sm line-clamp-2">
+            {title}
+          </h3>
+        </div>
       </div>
-    </div>
+
+      {/* Modals */}
+      <ImageGalleryModal
+        isOpen={showGalleryModal}
+        onClose={() => setShowGalleryModal(false)}
+        images={galleryImages}
+        category={category}
+        onOpenPrompt={handleOpenPrompt}
+      />
+
+      <PromptDetailModal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        prompt={{
+          id,
+          image,
+          title,
+          category,
+          promptText,
+          rating,
+          views,
+          downloads,
+          likes
+        }}
+      />
+    </>
   );
 };
 
