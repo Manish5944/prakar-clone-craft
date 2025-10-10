@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,15 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Plus, Trash2, FileText, DollarSign, Shield, Rocket, ArrowRight } from "lucide-react";
+import { Upload, FileText, DollarSign, Shield, Rocket, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 
 const Admin = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -25,44 +23,6 @@ const Admin = () => {
     rating: "0"
   });
 
-  useEffect(() => {
-    checkAdminStatus();
-  }, []);
-
-  const checkAdminStatus = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        navigate("/auth");
-        return;
-      }
-
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .single();
-
-      if (!roles) {
-        toast({
-          title: "Access Denied",
-          description: "You don't have admin permissions",
-          variant: "destructive"
-        });
-        navigate("/");
-        return;
-      }
-
-      setIsAdmin(true);
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      navigate("/");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,20 +68,6 @@ const Admin = () => {
       });
     }
   };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-foreground">Loading...</div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!isAdmin) {
-    return null;
-  }
 
   return (
     <Layout>

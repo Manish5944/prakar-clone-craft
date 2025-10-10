@@ -44,13 +44,24 @@ const Auth = () => {
         
         toast({
           title: "Account created!",
-          description: "Please check your email to verify your account.",
+          description: "You can now sign in with your credentials.",
         });
       }
     } catch (error: any) {
+      let errorMessage = error.message;
+      
+      // Provide more user-friendly error messages
+      if (error.message.includes("Invalid login credentials")) {
+        errorMessage = "Invalid email or password. Please check your credentials and try again.";
+      } else if (error.message.includes("User already registered")) {
+        errorMessage = "This email is already registered. Please sign in instead.";
+      } else if (error.message.includes("Email not confirmed")) {
+        errorMessage = "Please verify your email address before signing in.";
+      }
+      
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
