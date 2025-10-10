@@ -261,54 +261,60 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
 
   return (
     <>
-      <div className="group relative bg-wallcraft-card rounded-lg overflow-hidden transition-all duration-300 hover:shadow-card cursor-pointer">
+      <div 
+        className="group relative bg-wallcraft-card rounded-lg overflow-hidden transition-all duration-300 hover:shadow-card cursor-pointer"
+        onClick={handleImageClick}
+      >
         {/* Image container */}
-        <div 
-          className="relative aspect-[3/4] overflow-hidden"
-          onClick={handleImageClick}
-        >
-        <img 
-          src={image} 
-          alt={title}
-          className="w-full h-full object-cover"
-        />
-        
-        {/* Rank badge */}
-        {rank && (
-          <div className="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded">
-            {rank}
+        <div className="relative aspect-[3/4] overflow-hidden">
+          <img 
+            src={image} 
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Rank badge */}
+          {rank && (
+            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded">
+              {rank}
+            </div>
+          )}
+          
+          {/* Category badge */}
+          <div className="absolute top-2 left-2 bg-wallcraft-cyan/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+            <Badge variant="secondary" className="bg-transparent border-none p-0 text-white">
+              {category}
+            </Badge>
           </div>
-        )}
-        
-        {/* Category badge */}
-        <div className="absolute top-2 left-2 bg-wallcraft-cyan/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-          <Badge variant="secondary" className="bg-transparent border-none p-0 text-white">
-            {category}
-          </Badge>
-        </div>
 
-        {/* Rating */}
-        {rating > 0 && (
-          <div className="absolute top-2 right-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
-            {rating.toFixed(1)} <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-          </div>
-        )}
-        
-        {/* Hover/Tap Overlay - Just Like Button */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          {/* Like button */}
-          <div className="absolute top-3 right-3">
-            <Button 
-              variant="wallcraft-ghost" 
-              size="icon" 
-              className={`text-white hover:text-wallcraft-cyan bg-black/50 ${isLiked ? 'text-red-500' : ''}`}
-              onClick={handleLike}
-            >
-              <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-            </Button>
+          {/* Rating */}
+          {rating > 0 && (
+            <div className="absolute top-2 right-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+              {rating.toFixed(1)} <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+            </div>
+          )}
+          
+          {/* Hover Popup */}
+          <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+            <div className="text-center space-y-3">
+              <h3 className="text-white font-semibold text-lg">{title}</h3>
+              <p className="text-gray-300 text-sm line-clamp-2">{category}</p>
+              <div className="flex gap-2 justify-center">
+                <Button 
+                  variant="wallcraft" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLike();
+                  }}
+                >
+                  <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
+                  {isLiked ? 'Liked' : 'Like'}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
         {/* Content */}
         <div className="p-3">
