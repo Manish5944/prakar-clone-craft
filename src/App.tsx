@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import AdminForm from "./pages/AdminForm";
+import AdminPromptFile from "./pages/AdminPromptFile";
 import Favorites from "./pages/Favorites";
 import Downloads from "./pages/Downloads";
 import Settings from "./pages/Settings";
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/support" element={<Support />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/prompt-file" element={<AdminPromptFile />} />
           <Route path="/admin/form" element={<AdminForm />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
