@@ -187,11 +187,11 @@ const Header = () => {
               <Button 
                 variant="wallcraft-ghost" 
                 size="icon" 
-                className="text-white relative"
+                className="text-white relative hover:bg-wallcraft-card"
                 onClick={() => navigate("/notifications")}
+                title="Notifications"
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </Button>
             )}
             

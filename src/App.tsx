@@ -7,11 +7,13 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import AdminForm from "./pages/AdminForm";
 import Favorites from "./pages/Favorites";
 import Downloads from "./pages/Downloads";
 import Settings from "./pages/Settings";
 import Premium from "./pages/Premium";
 import Support from "./pages/Support";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +31,9 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/premium" element={<Premium />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/form" element={<AdminForm />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
