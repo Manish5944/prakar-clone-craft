@@ -273,18 +273,19 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
             className="w-full h-full object-cover"
           />
           
-          {/* Rank badge */}
-          {rank && (
-            <div className="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded">
+          {/* Rank badge (top-left for ranked items) */}
+          {rank && rank <= 15 && (
+            <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
               {rank}
             </div>
           )}
           
-          {/* Category badge */}
-          <div className="absolute top-2 left-2 bg-wallcraft-cyan/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-            <Badge variant="secondary" className="bg-transparent border-none p-0 text-white">
-              {category}
-            </Badge>
+          {/* Category badge (top-left when no rank, or top-right when ranked) */}
+          <div className={`absolute ${rank && rank <= 15 ? 'top-2 right-2' : 'top-2 left-2'}`}>
+            <div className="flex items-center gap-1 bg-black/70 backdrop-blur-sm px-2 py-1 rounded text-xs">
+              <span className="text-yellow-400">⚡</span>
+              <span className="text-white font-semibold">{category}</span>
+            </div>
           </div>
 
           {/* Rating */}
@@ -317,10 +318,26 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
         </div>
 
         {/* Content */}
-        <div className="p-3">
-          <h3 className="font-semibold text-foreground text-sm line-clamp-2">
+        <div className="p-3 space-y-2">
+          <h3 className="font-semibold text-foreground text-sm line-clamp-2 mb-1">
             {title}
           </h3>
+          
+          {/* Price & Rating Row */}
+          <div className="flex items-center justify-between">
+            {price !== undefined && price > 0 ? (
+              <span className="text-wallcraft-cyan font-bold">${price.toFixed(2)}</span>
+            ) : (
+              <span className="text-green-400 font-semibold text-xs">FREE</span>
+            )}
+            
+            {rating !== undefined && rating > 0 && (
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                <span className="text-foreground text-xs font-medium">{rating.toFixed(1)}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Bell, Trash2, Check } from "lucide-react";
+import { Bell, Trash2, CheckCheck, MessageSquare, XCircle, AlertTriangle, Info, Megaphone } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface Notification {
@@ -142,12 +141,19 @@ const Notifications = () => {
     }
   };
 
-  const getTypeColor = (type: string) => {
+  const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'success': return 'text-green-500';
-      case 'error': return 'text-red-500';
-      case 'warning': return 'text-yellow-500';
-      default: return 'text-wallcraft-cyan';
+      case 'message':
+        return <MessageSquare className="h-6 w-6" />;
+      case 'error':
+        return <XCircle className="h-6 w-6" />;
+      case 'warning':
+        return <AlertTriangle className="h-6 w-6" />;
+      case 'announcement':
+        return <Megaphone className="h-6 w-6" />;
+      case 'info':
+      default:
+        return <Info className="h-6 w-6" />;
     }
   };
 
@@ -165,84 +171,100 @@ const Notifications = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+      <div className="min-h-screen bg-wallcraft-dark py-8">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <Bell className="h-8 w-8 text-wallcraft-cyan" />
+              <Bell className="h-6 w-6 text-wallcraft-cyan" />
               <h1 className="text-3xl font-bold text-foreground">Notifications</h1>
             </div>
-            {notifications.some(n => !n.read) && (
+            {notifications.filter(n => !n.read).length > 0 && (
               <Button
                 variant="outline"
+                size="sm"
                 onClick={markAllAsRead}
                 className="gap-2"
               >
-                <Check className="h-4 w-4" />
+                <CheckCheck className="h-4 w-4" />
                 Mark all as read
               </Button>
             )}
           </div>
 
-          {/* Notifications List */}
           {notifications.length === 0 ? (
-            <Card className="bg-wallcraft-card border-wallcraft-card p-12 text-center">
+            <div className="text-center py-16">
               <Bell className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
               <p className="text-muted-foreground text-lg">No notifications yet</p>
-              <p className="text-muted-foreground text-sm mt-2">
-                We'll notify you when something important happens
-              </p>
-            </Card>
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {notifications.map((notification) => (
-                <Card
+                <div
                   key={notification.id}
-                  className={`bg-wallcraft-card border-wallcraft-card p-6 transition-all ${
-                    !notification.read ? 'border-l-4 border-l-wallcraft-cyan' : ''
+                  className={`group relative bg-wallcraft-card rounded-lg p-4 transition-all hover:bg-wallcraft-card/80 border-l-4 ${
+                    notification.read 
+                      ? 'border-transparent opacity-60' 
+                      : 'border-wallcraft-cyan'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Bell className={`h-5 w-5 ${getTypeColor(notification.type)}`} />
-                        <h3 className="text-lg font-semibold text-foreground">
-                          {notification.title}
-                        </h3>
-                        {!notification.read && (
-                          <span className="px-2 py-1 text-xs bg-wallcraft-cyan/20 text-wallcraft-cyan rounded-full">
-                            New
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-muted-foreground mb-2">{notification.message}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                      </p>
+                  <div className="flex items-start gap-4">
+                    {/* Icon */}
+                    <div className={`flex-shrink-0 rounded-full p-3 ${
+                      notification.type === 'error' ? 'bg-red-500/20 text-red-400' :
+                      notification.type === 'warning' ? 'bg-yellow-500/20 text-yellow-400' :
+                      notification.type === 'message' ? 'bg-blue-500/20 text-blue-400' :
+                      notification.type === 'announcement' ? 'bg-purple-500/20 text-purple-400' :
+                      'bg-wallcraft-cyan/20 text-wallcraft-cyan'
+                    }`}>
+                      {getNotificationIcon(notification.type)}
                     </div>
-                    <div className="flex gap-2">
-                      {!notification.read && (
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h3 className="text-foreground font-semibold text-lg mb-1">
+                            {notification.title}
+                          </h3>
+                          <p className="text-muted-foreground text-sm mb-2">
+                            {notification.message}
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                          </p>
+                        </div>
+
+                        {/* Thumbnail placeholder */}
+                        <div className="flex-shrink-0 w-12 h-12 bg-wallcraft-dark rounded overflow-hidden">
+                          <div className="w-full h-full bg-gradient-to-br from-wallcraft-cyan/20 to-transparent" />
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {!notification.read && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => markAsRead(notification.id)}
+                            className="text-xs"
+                          >
+                            Mark as read
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
-                          size="icon"
-                          onClick={() => markAsRead(notification.id)}
-                          title="Mark as read"
+                          size="sm"
+                          onClick={() => deleteNotification(notification.id)}
+                          className="text-xs text-red-400 hover:text-red-300"
                         >
-                          <Check className="h-4 w-4" />
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Delete
                         </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteNotification(notification.id)}
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
+                      </div>
                     </div>
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
           )}

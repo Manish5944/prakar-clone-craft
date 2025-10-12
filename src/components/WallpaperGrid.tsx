@@ -122,14 +122,14 @@ const WallpaperGrid = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-2">All Prompts</h1>
-        <p className="text-muted-foreground text-sm">
-          {wallpapers.length} prompts found • Sorted by popular
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground mb-2">Trending Prompts</h1>
+        <p className="text-muted-foreground">
+          Discover the most popular AI prompts
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {wallpapers.map((wallpaper, index) => (
           <WallpaperCard
             key={wallpaper.id}
@@ -143,7 +143,7 @@ const WallpaperGrid = () => {
             promptText={wallpaper.promptText}
             price={wallpaper.price}
             rating={wallpaper.rating}
-            rank={index + 1}
+            rank={index < 15 ? index + 1 : undefined}
           />
         ))}
       </div>

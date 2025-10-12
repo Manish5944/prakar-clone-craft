@@ -57,7 +57,7 @@ const Admin = () => {
                   <p className="text-sm text-muted-foreground mb-2">
                     What kind of content does your prompt generate?
                   </p>
-                  <Select value={formData.generationType} onValueChange={(value) => setFormData({...formData, generationType: value})}>
+                  <Select value={formData.generationType} onValueChange={(value) => setFormData({...formData, generationType: value, model: ""})}>
                     <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
                       <SelectValue placeholder="Select Generation Type" />
                     </SelectTrigger>
@@ -66,6 +66,7 @@ const Admin = () => {
                       <SelectItem value="text">Text</SelectItem>
                       <SelectItem value="code">Code</SelectItem>
                       <SelectItem value="audio">Audio</SelectItem>
+                      <SelectItem value="video">Video</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -80,14 +81,51 @@ const Admin = () => {
                   </p>
                   <Select value={formData.model} onValueChange={(value) => setFormData({...formData, model: value})}>
                     <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                      <SelectValue placeholder="Select Prompt Type" />
+                      <SelectValue placeholder="Select Model" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="midjourney">Midjourney</SelectItem>
-                      <SelectItem value="dalle">DALL-E</SelectItem>
-                      <SelectItem value="chatgpt">ChatGPT</SelectItem>
-                      <SelectItem value="stable-diffusion">Stable Diffusion</SelectItem>
-                      <SelectItem value="gpt4">GPT-4</SelectItem>
+                      {formData.generationType === "image" && (
+                        <>
+                          <SelectItem value="midjourney">Midjourney</SelectItem>
+                          <SelectItem value="dalle">DALL-E</SelectItem>
+                          <SelectItem value="stable-diffusion">Stable Diffusion</SelectItem>
+                          <SelectItem value="leonardo-ai">Leonardo AI</SelectItem>
+                          <SelectItem value="flux">FLUX</SelectItem>
+                        </>
+                      )}
+                      {formData.generationType === "text" && (
+                        <>
+                          <SelectItem value="chatgpt">ChatGPT</SelectItem>
+                          <SelectItem value="gpt4">GPT-4</SelectItem>
+                          <SelectItem value="claude">Claude</SelectItem>
+                          <SelectItem value="gemini">Gemini</SelectItem>
+                        </>
+                      )}
+                      {formData.generationType === "code" && (
+                        <>
+                          <SelectItem value="github-copilot">GitHub Copilot</SelectItem>
+                          <SelectItem value="gpt4-code">GPT-4 Code</SelectItem>
+                          <SelectItem value="codex">Codex</SelectItem>
+                        </>
+                      )}
+                      {formData.generationType === "audio" && (
+                        <>
+                          <SelectItem value="elevenlabs">ElevenLabs</SelectItem>
+                          <SelectItem value="murf">Murf AI</SelectItem>
+                          <SelectItem value="play-ht">Play.ht</SelectItem>
+                        </>
+                      )}
+                      {formData.generationType === "video" && (
+                        <>
+                          <SelectItem value="sora">Sora</SelectItem>
+                          <SelectItem value="runway">Runway ML</SelectItem>
+                          <SelectItem value="pika">Pika Labs</SelectItem>
+                          <SelectItem value="synthesia">Synthesia</SelectItem>
+                        </>
+                      )}
+                      {!formData.generationType && (
+                        <SelectItem value="" disabled>Please select generation type first</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

@@ -17,15 +17,70 @@ const AdminPromptFile = () => {
     chatgptVersion: "",
     generationType: "",
     promptInstructions: "",
-    referenceImage: "no"
+    referenceImage: "no",
+    soraVersion: "2.0",
+    duration: "10s",
+    aspectRatio: "9:16",
+    resolution: "720p"
   });
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
 
   const handleFinish = () => {
     // Combine all form data and navigate to final page or submit
-    const completeData = { ...previousData, ...formData };
+    const completeData = { 
+      ...previousData, 
+      ...formData,
+      uploadedImages,
+      uploadedVideos
+    };
     console.log("Complete form data:", completeData);
     navigate('/admin/form', { state: completeData });
   };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newImages: string[] = [];
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newImages.push(reader.result as string);
+          if (newImages.length === files.length) {
+            setUploadedImages([...uploadedImages, ...newImages]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newVideos: string[] = [];
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newVideos.push(reader.result as string);
+          if (newVideos.length === files.length) {
+            setUploadedVideos([...uploadedVideos, ...newVideos]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(uploadedImages.filter((_, i) => i !== index));
+  };
+
+  const removeVideo = (index: number) => {
+    setUploadedVideos(uploadedVideos.filter((_, i) => i !== index));
+  };
+
+  const isVideoGeneration = previousData.generationType === "video";
 
   return (
     <Layout>
@@ -70,81 +125,250 @@ const AdminPromptFile = () => {
                   />
                 </div>
 
-                {/* ChatGPT Image Version */}
-                <div>
-                  <Label htmlFor="chatgptVersion" className="text-lg font-semibold text-foreground mb-2 block">
-                    ChatGPT Image version
-                  </Label>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    What version of ChatGPT Image does this prompt use?
-                  </p>
-                  <Select value={formData.chatgptVersion} onValueChange={(value) => setFormData({...formData, chatgptVersion: value})}>
-                    <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                      <SelectValue placeholder="GPT-5 Image" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gpt5-image">GPT-5 Image</SelectItem>
-                      <SelectItem value="gpt4-image">GPT-4 Image</SelectItem>
-                      <SelectItem value="dalle3">DALL-E 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Conditional rendering based on generation type */}
+                {isVideoGeneration ? (
+                  <>
+                    {/* Sora Version */}
+                    <div>
+                      <Label htmlFor="soraVersion" className="text-lg font-semibold text-foreground mb-2 block">
+                        Sora version
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        What version of Sora does this prompt use?
+                      </p>
+                      <Select value={formData.soraVersion} onValueChange={(value) => setFormData({...formData, soraVersion: value})}>
+                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                          <SelectValue placeholder="2.0" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="2.0">2.0</SelectItem>
+                          <SelectItem value="1.5">1.5</SelectItem>
+                          <SelectItem value="1.0">1.0</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {/* Generation Type */}
-                <div>
-                  <Label htmlFor="genType" className="text-lg font-semibold text-foreground mb-2 block">
-                    Generation type
-                  </Label>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Is this a text-to-image or image-to-image prompt?
-                  </p>
-                  <Select value={formData.generationType} onValueChange={(value) => setFormData({...formData, generationType: value})}>
-                    <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                      <SelectValue placeholder="Text to image" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="text-to-image">Text to image</SelectItem>
-                      <SelectItem value="image-to-image">Image to image</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {/* Generation Type for Videos */}
+                    <div>
+                      <Label htmlFor="genType" className="text-lg font-semibold text-foreground mb-2 block">
+                        Generation type
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Is this a text-to-video or image-to-video prompt?
+                      </p>
+                      <Select value={formData.generationType} onValueChange={(value) => setFormData({...formData, generationType: value})}>
+                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                          <SelectValue placeholder="Text to video" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="text-to-video">Text to video</SelectItem>
+                          <SelectItem value="image-to-video">Image to video</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {/* Example Images */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="text-lg font-semibold text-foreground">
-                      Example images
-                    </Label>
-                    <HelpCircle className="h-5 w-5 text-muted-foreground cursor-pointer" />
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Upload 9 unique example images generated by this prompt (no collages or edits)
-                  </p>
-                  <div className="flex gap-4">
-                    <button className="w-32 h-32 rounded-lg border-2 border-dashed border-wallcraft-card bg-wallcraft-card/30 hover:bg-wallcraft-card/50 transition-colors flex items-center justify-center">
-                      <Plus className="h-8 w-8 text-muted-foreground" />
-                    </button>
-                  </div>
-                </div>
+                    {/* Example Videos */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-lg font-semibold text-foreground">
+                          Example videos
+                        </Label>
+                        <HelpCircle className="h-5 w-5 text-muted-foreground cursor-pointer" />
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Upload 4 unique example videos generated by this prompt (no edits)
+                      </p>
+                      <div className="flex flex-wrap gap-4">
+                        {uploadedVideos.map((video, index) => (
+                          <div key={index} className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-wallcraft-card">
+                            <video src={video} className="w-full h-full object-cover" />
+                            <button
+                              onClick={() => removeVideo(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {uploadedVideos.length < 9 && (
+                          <label className="w-32 h-32 rounded-lg border-2 border-dashed border-wallcraft-card bg-wallcraft-card/30 hover:bg-wallcraft-card/50 transition-colors flex items-center justify-center cursor-pointer">
+                            <Plus className="h-8 w-8 text-muted-foreground" />
+                            <input
+                              type="file"
+                              accept="video/*"
+                              multiple
+                              className="hidden"
+                              onChange={handleVideoUpload}
+                            />
+                          </label>
+                        )}
+                      </div>
+                    </div>
 
-                {/* Reference Image */}
-                <div>
-                  <Label htmlFor="referenceImage" className="text-lg font-semibold text-foreground mb-2 block">
-                    Reference image
-                  </Label>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Does this prompt use a reference image for all generations?
-                  </p>
-                  <Select value={formData.referenceImage} onValueChange={(value) => setFormData({...formData, referenceImage: value})}>
-                    <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                      <SelectValue placeholder="No" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="no">No</SelectItem>
-                      <SelectItem value="yes">Yes</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {/* Duration */}
+                    <div>
+                      <Label htmlFor="duration" className="text-lg font-semibold text-foreground mb-2 block">
+                        Duration
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Select the duration of the videos generated by this prompt.
+                      </p>
+                      <Select value={formData.duration} onValueChange={(value) => setFormData({...formData, duration: value})}>
+                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                          <SelectValue placeholder="10s" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5s">5s</SelectItem>
+                          <SelectItem value="10s">10s</SelectItem>
+                          <SelectItem value="15s">15s</SelectItem>
+                          <SelectItem value="20s">20s</SelectItem>
+                          <SelectItem value="30s">30s</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Aspect Ratio */}
+                    <div>
+                      <Label htmlFor="aspectRatio" className="text-lg font-semibold text-foreground mb-2 block">
+                        Aspect ratio
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Select the aspect ratio of the videos generated by this prompt.
+                      </p>
+                      <Select value={formData.aspectRatio} onValueChange={(value) => setFormData({...formData, aspectRatio: value})}>
+                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                          <SelectValue placeholder="9:16" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="16:9">16:9</SelectItem>
+                          <SelectItem value="9:16">9:16</SelectItem>
+                          <SelectItem value="1:1">1:1</SelectItem>
+                          <SelectItem value="4:3">4:3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Resolution */}
+                    <div>
+                      <Label htmlFor="resolution" className="text-lg font-semibold text-foreground mb-2 block">
+                        Resolution
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Select the resolution of the videos generated by this prompt.
+                      </p>
+                      <Select value={formData.resolution} onValueChange={(value) => setFormData({...formData, resolution: value})}>
+                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                          <SelectValue placeholder="720p" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="480p">480p</SelectItem>
+                          <SelectItem value="720p">720p</SelectItem>
+                          <SelectItem value="1080p">1080p</SelectItem>
+                          <SelectItem value="4k">4K</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* ChatGPT Image Version - for non-video */}
+
+                    <div>
+                      <Label htmlFor="chatgptVersion" className="text-lg font-semibold text-foreground mb-2 block">
+                        ChatGPT Image version
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        What version of ChatGPT Image does this prompt use?
+                      </p>
+                      <Select value={formData.chatgptVersion} onValueChange={(value) => setFormData({...formData, chatgptVersion: value})}>
+                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                          <SelectValue placeholder="GPT-5 Image" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="gpt5-image">GPT-5 Image</SelectItem>
+                          <SelectItem value="gpt4-image">GPT-4 Image</SelectItem>
+                          <SelectItem value="dalle3">DALL-E 3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Generation Type */}
+                    <div>
+                      <Label htmlFor="genType" className="text-lg font-semibold text-foreground mb-2 block">
+                        Generation type
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Is this a text-to-image or image-to-image prompt?
+                      </p>
+                      <Select value={formData.generationType} onValueChange={(value) => setFormData({...formData, generationType: value})}>
+                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                          <SelectValue placeholder="Text to image" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="text-to-image">Text to image</SelectItem>
+                          <SelectItem value="image-to-image">Image to image</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Example Images */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-lg font-semibold text-foreground">
+                          Example images
+                        </Label>
+                        <HelpCircle className="h-5 w-5 text-muted-foreground cursor-pointer" />
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Upload 9 unique example images generated by this prompt (no collages or edits)
+                      </p>
+                      <div className="flex flex-wrap gap-4">
+                        {uploadedImages.map((image, index) => (
+                          <div key={index} className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-wallcraft-card">
+                            <img src={image} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
+                            <button
+                              onClick={() => removeImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {uploadedImages.length < 9 && (
+                          <label className="w-32 h-32 rounded-lg border-2 border-dashed border-wallcraft-card bg-wallcraft-card/30 hover:bg-wallcraft-card/50 transition-colors flex items-center justify-center cursor-pointer">
+                            <Plus className="h-8 w-8 text-muted-foreground" />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="hidden"
+                              onChange={handleImageUpload}
+                            />
+                          </label>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Reference Image */}
+                    <div>
+                      <Label htmlFor="referenceImage" className="text-lg font-semibold text-foreground mb-2 block">
+                        Reference image
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Does this prompt use a reference image for all generations?
+                      </p>
+                      <Select value={formData.referenceImage} onValueChange={(value) => setFormData({...formData, referenceImage: value})}>
+                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                          <SelectValue placeholder="No" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="no">No</SelectItem>
+                          <SelectItem value="yes">Yes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
 
                 {/* Prompt Instructions */}
                 <div>
