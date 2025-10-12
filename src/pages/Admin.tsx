@@ -123,11 +123,11 @@ const Admin = () => {
                           <SelectItem value="synthesia">Synthesia</SelectItem>
                         </>
                       )}
-                      {!formData.generationType && (
-                        <SelectItem value="" disabled>Please select generation type first</SelectItem>
-                      )}
                     </SelectContent>
                   </Select>
+                  {!formData.generationType && (
+                    <p className="text-xs text-muted-foreground mt-1">Please select generation type first</p>
+                  )}
                 </div>
 
                 {/* Name */}
