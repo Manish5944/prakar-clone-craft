@@ -1,3 +1,4 @@
+import { useState } from "react";
 import WallpaperCard from "./WallpaperCard";
 import gamingSetup from "@/assets/gaming-setup.jpg";
 import abstractCircuit from "@/assets/abstract-circuit.jpg";
@@ -5,8 +6,23 @@ import neonFlowers from "@/assets/neon-flowers.jpg";
 import codingNight from "@/assets/coding-night.jpg";
 import cyberWolf from "@/assets/cyber-wolf.jpg";
 import cyberCity from "@/assets/cyber-city.jpg";
+import { Button } from "./ui/button";
+import { SlidersHorizontal, ChevronDown } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
+import { ScrollArea } from "./ui/scroll-area";
+import { Separator } from "./ui/separator";
 
 const WallpaperGrid = () => {
+  const [filterOpen, setFilterOpen] = useState(false);
   const wallpapers = [
     {
       id: 1,
@@ -120,31 +136,134 @@ const WallpaperGrid = () => {
     }
   ];
 
+  // Group wallpapers by category for display
+  const groupedWallpapers = {
+    "ASMR Prompts": wallpapers.slice(0, 4),
+    "Fakemon Prompts": wallpapers.slice(4, 8),
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Trending Prompts</h1>
-        <p className="text-muted-foreground">
-          Discover the most popular AI prompts
-        </p>
+      {/* Filter Bar */}
+      <div className="flex items-center justify-between mb-8">
+        <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <SlidersHorizontal size={16} />
+              All Filters
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[400px] sm:w-[540px]">
+            <SheetHeader>
+              <SheetTitle>Filters</SheetTitle>
+              <SheetDescription>
+                Filter prompts by product, type, price, model, and category
+              </SheetDescription>
+            </SheetHeader>
+            <ScrollArea className="h-[calc(100vh-120px)] mt-6">
+              <div className="space-y-6 pr-4">
+                {/* Product */}
+                <div>
+                  <h3 className="font-semibold mb-3">Product</h3>
+                  <div className="space-y-2">
+                    {["Prompts", "Bundles", "Apps"].map((item) => (
+                      <div key={item} className="flex items-center space-x-2">
+                        <Checkbox id={`product-${item}`} />
+                        <Label htmlFor={`product-${item}`}>{item}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Separator />
+
+                {/* Type */}
+                <div>
+                  <h3 className="font-semibold mb-3">Type</h3>
+                  <div className="space-y-2">
+                    {["All", "Image", "Text", "Video"].map((item) => (
+                      <div key={item} className="flex items-center space-x-2">
+                        <Checkbox id={`type-${item}`} />
+                        <Label htmlFor={`type-${item}`}>{item}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Separator />
+
+                {/* Price */}
+                <div>
+                  <h3 className="font-semibold mb-3">Price</h3>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="free-only" />
+                    <Label htmlFor="free-only">Free prompts only</Label>
+                  </div>
+                </div>
+                <Separator />
+
+                {/* Model */}
+                <div>
+                  <h3 className="font-semibold mb-3">Model</h3>
+                  <div className="space-y-2">
+                    {["All", "ChatGPT Image", "Claude", "DALL·E", "DeepSeek", "FLUX", "Gemini", "Gemini Image", "GPT", "Grok", "Grok Image", "Hailuo AI", "Ideogram", "Imagen", "KLING AI", "Leonardo Ai", "Llama", "Midjourney", "Midjourney Video", "Sora", "Stable Diffusion", "Veo"].map((item) => (
+                      <div key={item} className="flex items-center space-x-2">
+                        <Checkbox id={`model-${item}`} />
+                        <Label htmlFor={`model-${item}`}>{item}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Separator />
+
+                {/* Category */}
+                <div>
+                  <h3 className="font-semibold mb-3">Category</h3>
+                  <div className="space-y-2">
+                    {["All", "3D", "Abstract", "Accessory", "Ads", "Animal", "Anime", "Art", "Avatar", "Architecture", "Business", "Cartoon", "Celebrity", "Chatbot", "Clip Art", "Clothing", "Coach", "Code", "Conversion", "Copy", "Cute", "Cyberpunk", "Drawing", "Drink", "Email", "Fantasy", "Fashion", "Finance", "Fix", "Food", "Fun", "Funny", "Future", "Gaming", "Generation", "Glass", "Graphic Design", "Health", "Holiday", "Icon", "Ideas", "Illustration", "Ink", "Interior", "Jewelry", "Landscape", "Language", "Logo", "Marketing", "Mockup", "Monogram", "Monster", "Music", "Nature", "Painting", "Pattern", "People", "Photographic", "Pixel Art", "Plan", "Poster", "Product", "Prompts", "Psychedelic", "Retro", "Scary", "SEO", "Social", "Space", "Sport", "Statue", "Steampunk", "Sticker", "Study", "Unique Style", "Summarise", "Synthwave", "Texture", "Translate", "Travel", "Vehicle", "Wallpaper", "Writing"].map((item) => (
+                      <div key={item} className="flex items-center space-x-2">
+                        <Checkbox id={`category-${item}`} />
+                        <Label htmlFor={`category-${item}`}>{item}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+          </SheetContent>
+        </Sheet>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Sort By</span>
+          <Button variant="outline" className="gap-2">
+            Popular
+            <ChevronDown size={16} />
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-        {wallpapers.map((wallpaper, index) => (
-          <WallpaperCard
-            key={wallpaper.id}
-            id={wallpaper.id}
-            image={wallpaper.image}
-            title={wallpaper.title}
-            category={wallpaper.category}
-            views={wallpaper.views}
-            downloads={wallpaper.downloads}
-            likes={wallpaper.likes}
-            promptText={wallpaper.promptText}
-            price={wallpaper.price}
-            rating={wallpaper.rating}
-            rank={index < 15 ? index + 1 : undefined}
-          />
+      {/* Grouped Prompts Display */}
+      <div className="space-y-12">
+        {Object.entries(groupedWallpapers).map(([groupName, items]) => (
+          <div key={groupName}>
+            <h2 className="text-2xl font-bold text-foreground mb-6">{groupName}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {items.map((wallpaper, index) => (
+                <WallpaperCard
+                  key={wallpaper.id}
+                  id={wallpaper.id}
+                  image={wallpaper.image}
+                  title={wallpaper.title}
+                  category={wallpaper.category}
+                  views={wallpaper.views}
+                  downloads={wallpaper.downloads}
+                  likes={wallpaper.likes}
+                  promptText={wallpaper.promptText}
+                  price={wallpaper.price}
+                  rating={wallpaper.rating}
+                  rank={index < 15 ? index + 1 : undefined}
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </div>
