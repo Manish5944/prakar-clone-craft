@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,10 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExternalLink, Trash2, HelpCircle, Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminPromptFile = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const previousData = location.state || {};
 
   const [formData, setFormData] = useState({
@@ -26,16 +29,67 @@ const AdminPromptFile = () => {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
 
-  const handleFinish = () => {
-    // Combine all form data and navigate to final page or submit
-    const completeData = { 
-      ...previousData, 
-      ...formData,
+  // Load saved data from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('adminPromptFileData');
+    if (saved) {
+      const parsedData = JSON.parse(saved);
+      setFormData(parsedData.formData || formData);
+      setUploadedImages(parsedData.uploadedImages || []);
+      setUploadedVideos(parsedData.uploadedVideos || []);
+    }
+  }, []);
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    localStorage.setItem('adminPromptFileData', JSON.stringify({
+      formData,
       uploadedImages,
       uploadedVideos
-    };
-    console.log("Complete form data:", completeData);
-    navigate('/admin/form', { state: completeData });
+    }));
+  }, [formData, uploadedImages, uploadedVideos]);
+
+  const handleFinish = async () => {
+    try {
+      // Get first uploaded image as main image
+      const mainImage = uploadedImages[0] || uploadedVideos[0] || "/placeholder.svg";
+      
+      // Insert prompt into database
+      const { error } = await supabase
+        .from('prompts')
+        .insert({
+          title: previousData.name || "Untitled Prompt",
+          category: previousData.model || "General",
+          prompt_text: formData.promptTemplate,
+          description: previousData.description || formData.promptInstructions,
+          image_url: mainImage,
+          price: 0,
+          rating: 0,
+          views: 0,
+          downloads: 0,
+          likes: 0
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Prompt uploaded successfully"
+      });
+
+      // Clear localStorage after successful submission
+      localStorage.removeItem('adminFormData');
+      localStorage.removeItem('adminPromptFileData');
+
+      // Navigate to home page
+      setTimeout(() => navigate('/'), 1000);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +143,7 @@ const AdminPromptFile = () => {
           <div className="max-w-6xl mx-auto">
             {/* Progress */}
             <div className="mb-8">
-              <p className="text-muted-foreground text-sm">2/3</p>
+              <p className="text-muted-foreground text-sm">2/2</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

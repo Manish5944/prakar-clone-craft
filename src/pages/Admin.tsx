@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,19 @@ const Admin = () => {
     description: ""
   });
 
+  // Load saved data from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('adminFormData');
+    if (saved) {
+      setFormData(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save to localStorage whenever formData changes
+  useEffect(() => {
+    localStorage.setItem('adminFormData', JSON.stringify(formData));
+  }, [formData]);
+
   const handleNext = () => {
     navigate('/admin/prompt-file', { state: formData });
   };
@@ -28,7 +41,7 @@ const Admin = () => {
           <div className="max-w-6xl mx-auto">
             {/* Progress */}
             <div className="mb-8">
-              <p className="text-muted-foreground text-sm">1/3</p>
+              <p className="text-muted-foreground text-sm">1/2</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
