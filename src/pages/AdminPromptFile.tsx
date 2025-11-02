@@ -35,19 +35,20 @@ const AdminPromptFile = () => {
     if (saved) {
       const parsedData = JSON.parse(saved);
       setFormData(parsedData.formData || formData);
-      setUploadedImages(parsedData.uploadedImages || []);
-      setUploadedVideos(parsedData.uploadedVideos || []);
+      // Don't persist images/videos in localStorage due to size limits
     }
   }, []);
 
-  // Save to localStorage whenever data changes
+  // Save to localStorage whenever form data changes (not images/videos)
   useEffect(() => {
-    localStorage.setItem('adminPromptFileData', JSON.stringify({
-      formData,
-      uploadedImages,
-      uploadedVideos
-    }));
-  }, [formData, uploadedImages, uploadedVideos]);
+    try {
+      localStorage.setItem('adminPromptFileData', JSON.stringify({
+        formData
+      }));
+    } catch (error) {
+      console.error('Failed to save to localStorage:', error);
+    }
+  }, [formData]);
 
   const handleFinish = async () => {
     try {
