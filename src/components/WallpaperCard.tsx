@@ -27,7 +27,6 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
   const [promptId, setPromptId] = useState<string | null>(null);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [fullPromptData, setFullPromptData] = useState<any>(null);
 
   useEffect(() => {
     checkIfLiked();
@@ -95,25 +94,8 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
     setShowGalleryModal(true);
   };
 
-  const handleOpenPrompt = async () => {
+  const handleOpenPrompt = () => {
     setShowGalleryModal(false);
-    
-    // Fetch full prompt data if we have a promptId
-    if (promptId) {
-      try {
-        const { data, error } = await supabase
-          .from('prompts')
-          .select('*')
-          .eq('id', promptId)
-          .single();
-        
-        if (error) throw error;
-        setFullPromptData(data);
-      } catch (error) {
-        console.error('Error fetching prompt:', error);
-      }
-    }
-    
     setShowDetailModal(true);
   };
 
@@ -369,9 +351,19 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
       />
 
       <PromptDetailModal
-        prompt={fullPromptData}
-        open={showDetailModal}
-        onOpenChange={setShowDetailModal}
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        prompt={{
+          id,
+          image,
+          title,
+          category,
+          promptText,
+          rating,
+          views,
+          downloads,
+          likes
+        }}
       />
     </>
   );

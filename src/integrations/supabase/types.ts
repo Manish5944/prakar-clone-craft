@@ -108,7 +108,6 @@ export type Database = {
           created_at: string
           description: string | null
           downloads: number | null
-          example_images: string[] | null
           id: string
           image_url: string
           likes: number | null
@@ -116,7 +115,6 @@ export type Database = {
           prompt_text: string | null
           rating: number | null
           title: string
-          user_id: string | null
           views: number | null
         }
         Insert: {
@@ -124,7 +122,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           downloads?: number | null
-          example_images?: string[] | null
           id?: string
           image_url: string
           likes?: number | null
@@ -132,7 +129,6 @@ export type Database = {
           prompt_text?: string | null
           rating?: number | null
           title: string
-          user_id?: string | null
           views?: number | null
         }
         Update: {
@@ -140,7 +136,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           downloads?: number | null
-          example_images?: string[] | null
           id?: string
           image_url?: string
           likes?: number | null
@@ -148,7 +143,6 @@ export type Database = {
           prompt_text?: string | null
           rating?: number | null
           title?: string
-          user_id?: string | null
           views?: number | null
         }
         Relationships: []

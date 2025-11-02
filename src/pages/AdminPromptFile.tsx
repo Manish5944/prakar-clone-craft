@@ -52,68 +52,18 @@ const AdminPromptFile = () => {
 
   const handleFinish = async () => {
     try {
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get first uploaded image as main image
+      const mainImage = uploadedImages[0] || uploadedVideos[0] || "/placeholder.svg";
       
-      if (!user) {
-        toast({
-          title: "Authentication Required",
-          description: "Please log in to upload prompts",
-          variant: "destructive"
-        });
-        navigate('/auth');
-        return;
-      }
-
-      // Upload images to storage
-      const imageUrls: string[] = [];
-      const imagesToUpload = isVideoGeneration ? uploadedVideos : uploadedImages;
-
-      for (let i = 0; i < imagesToUpload.length; i++) {
-        const base64Data = imagesToUpload[i];
-        
-        // Convert base64 to blob
-        const response = await fetch(base64Data);
-        const blob = await response.blob();
-        
-        // Generate unique filename
-        const filename = `${user.id}/${Date.now()}_${i}.${blob.type.split('/')[1]}`;
-        
-        // Upload to Supabase Storage
-        const { data, error } = await supabase.storage
-          .from('prompt-images')
-          .upload(filename, blob);
-
-        if (error) throw error;
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('prompt-images')
-          .getPublicUrl(filename);
-
-        imageUrls.push(publicUrl);
-      }
-
-      if (imageUrls.length === 0) {
-        toast({
-          title: "Error",
-          description: "Please upload at least one example image",
-          variant: "destructive"
-        });
-        return;
-      }
-
       // Insert prompt into database
       const { error } = await supabase
         .from('prompts')
         .insert({
-          user_id: user.id,
           title: previousData.name || "Untitled Prompt",
           category: previousData.model || "General",
           prompt_text: formData.promptTemplate,
           description: previousData.description || formData.promptInstructions,
-          image_url: imageUrls[0],
-          example_images: imageUrls,
+          image_url: mainImage,
           price: 0,
           rating: 0,
           views: 0,

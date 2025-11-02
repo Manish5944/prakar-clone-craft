@@ -8,7 +8,6 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import AdminPromptFile from "./pages/AdminPromptFile";
-import PromptDetail from "./pages/PromptDetail";
 import Favorites from "./pages/Favorites";
 import Downloads from "./pages/Downloads";
 import Settings from "./pages/Settings";
@@ -27,7 +26,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/prompt/:id" element={<PromptDetail />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/settings" element={<Settings />} />
