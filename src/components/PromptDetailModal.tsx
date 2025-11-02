@@ -1,169 +1,120 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Download, Heart, Share2, Star, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { X, Heart, Download, Eye, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-interface PromptDetailModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  prompt: {
-    id: number;
-    image: string;
-    title: string;
-    category: string;
-    promptText?: string;
-    description?: string;
-    rating?: number;
-    views: number;
-    downloads: number;
-    likes: number;
-  };
+interface Prompt {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  prompt_text: string;
+  image_url: string;
+  example_images?: string[];
+  price: number;
+  rating: number;
+  views: number;
+  downloads: number;
+  likes: number;
 }
 
-const PromptDetailModal = ({ isOpen, onClose, prompt }: PromptDetailModalProps) => {
-  const { toast } = useToast();
+interface PromptDetailModalProps {
+  prompt: Prompt | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
-  const handleCopyPrompt = async () => {
-    if (prompt.promptText) {
-      await navigator.clipboard.writeText(prompt.promptText);
-      toast({
-        title: "Copied!",
-        description: "Prompt copied to clipboard"
-      });
-    }
-  };
+const PromptDetailModal = ({ prompt, open, onOpenChange }: PromptDetailModalProps) => {
+  const navigate = useNavigate();
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = prompt.image;
-    link.download = `${prompt.title.replace(/\s+/g, '-').toLowerCase()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast({
-      title: "Downloaded!",
-      description: "Image saved"
-    });
+  if (!prompt) return null;
+
+  const handleAddToCart = () => {
+    onOpenChange(false);
+    navigate(`/prompt/${prompt.id}`);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl bg-wallcraft-dark border-wallcraft-card p-0 max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-wallcraft-card border-wallcraft-card">
         <div className="relative">
-          {/* Close button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 z-10"
+            onClick={() => onOpenChange(false)}
           >
-            <X className="h-5 w-5 text-white" />
+            <X className="h-4 w-4" />
           </Button>
 
-          {/* Header Image */}
-          <div className="relative h-96">
-            <img 
-              src={prompt.image} 
-              alt={prompt.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <div className="mt-8">
+            {/* Example Images Grid - 3x3 */}
+            {prompt.example_images && prompt.example_images.length > 0 && (
+              <div className="mb-6">
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {prompt.example_images.slice(0, 9).map((img, index) => (
+                    <div key={index} className="rounded-lg overflow-hidden aspect-square">
+                      <img 
+                        src={img} 
+                        alt={`Example ${index + 1}`}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          {/* Content */}
-          <div className="p-6">
-            {/* Title and Category */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-wallcraft-cyan/20 text-wallcraft-cyan px-3 py-1 rounded-full text-sm font-medium">
-                  {prompt.category}
-                </span>
-                {prompt.rating && (
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium text-foreground">{prompt.rating.toFixed(1)}</span>
+            {/* Info Card Below Images */}
+            <div className="bg-gradient-to-br from-wallcraft-card to-wallcraft-dark rounded-xl p-6 border border-wallcraft-card">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <img 
+                      src={prompt.image_url} 
+                      alt={prompt.title}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                    <div>
+                      <h2 className="text-2xl font-bold text-foreground">
+                        {prompt.title}
+                      </h2>
+                      <Badge variant="secondary" className="mt-1">
+                        {prompt.category}
+                      </Badge>
+                    </div>
                   </div>
-                )}
-              </div>
-              <h1 className="text-3xl font-bold text-foreground">{prompt.title}</h1>
-            </div>
 
-            {/* Stats */}
-            <div className="flex gap-6 mb-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <span>{prompt.views.toLocaleString()} views</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Download className="h-4 w-4" />
-                <span>{prompt.downloads.toLocaleString()} downloads</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Heart className="h-4 w-4" />
-                <span>{prompt.likes.toLocaleString()} likes</span>
-              </div>
-            </div>
-
-            {/* Tabs */}
-            <Tabs defaultValue="prompt" className="w-full">
-              <TabsList className="w-full bg-wallcraft-card">
-                <TabsTrigger value="prompt" className="flex-1">Prompt</TabsTrigger>
-                <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="prompt" className="mt-4">
-                <div className="bg-wallcraft-card rounded-lg p-4 mb-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-sm font-semibold text-foreground">Prompt Text</h3>
-                    <Button 
-                      variant="wallcraft-ghost" 
-                      size="sm"
-                      onClick={handleCopyPrompt}
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                      {prompt.rating || 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Eye className="h-4 w-4" />
+                      {prompt.views || 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Download className="h-4 w-4" />
+                      {prompt.downloads || 0}
+                    </span>
                   </div>
-                  <p className="text-foreground whitespace-pre-wrap">
-                    {prompt.promptText || "No prompt text available"}
+                </div>
+
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-primary">
+                    ${prompt.price || 0}
                   </p>
                 </div>
-              </TabsContent>
+              </div>
 
-              <TabsContent value="details" className="mt-4">
-                <div className="bg-wallcraft-card rounded-lg p-4">
-                  <h3 className="text-sm font-semibold text-foreground mb-2">Description</h3>
-                  <p className="text-muted-foreground">
-                    {prompt.description || "No description available"}
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 mt-6">
               <Button 
-                variant="wallcraft" 
                 size="lg" 
-                className="flex-1"
-                onClick={handleDownload}
+                className="w-full"
+                onClick={handleAddToCart}
               >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-              <Button 
-                variant="wallcraft-outline" 
-                size="lg"
-              >
-                <Heart className="h-4 w-4 mr-2" />
-                Like
-              </Button>
-              <Button 
-                variant="wallcraft-outline" 
-                size="lg"
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
+                Add to Cart
               </Button>
             </div>
           </div>
