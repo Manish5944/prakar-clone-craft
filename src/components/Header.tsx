@@ -13,7 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const Header = () => {
+interface HeaderProps {
+  onSearch?: (query: string) => void;
+}
+
+const Header = ({ onSearch }: HeaderProps) => {
   const navigate = useNavigate();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,8 +40,8 @@ const Header = () => {
   };
 
   const handleSearch = () => {
-    if (searchQuery.trim()) {
-      console.log("Searching for:", searchQuery);
+    if (searchQuery.trim() && onSearch) {
+      onSearch(searchQuery);
     }
   };
 

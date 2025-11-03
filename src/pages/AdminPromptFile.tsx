@@ -28,6 +28,7 @@ const AdminPromptFile = () => {
   });
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
+  const [imagePrompts, setImagePrompts] = useState<{[key: number]: string}>({});
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -453,6 +454,45 @@ const AdminPromptFile = () => {
                         )}
                       </div>
                     </div>
+
+                    {/* Example prompts */}
+                    {uploadedImages.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Label className="text-lg font-semibold text-foreground">
+                            Example prompts
+                          </Label>
+                          <HelpCircle className="h-5 w-5 text-muted-foreground cursor-pointer" />
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Provide the exact prompts used to generate each example image.
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-4 italic">
+                          Type the template variable values for each example into the input boxes below.
+                        </p>
+                        <div className="space-y-6">
+                          {uploadedImages.map((image, index) => (
+                            <div key={index} className="bg-wallcraft-card/30 rounded-lg p-4 border border-wallcraft-card">
+                              <div className="flex gap-4">
+                                <img src={image} alt={`Example ${index + 1}`} className="w-24 h-24 rounded-lg object-cover" />
+                                <div className="flex-1">
+                                  <Label className="text-sm font-medium text-foreground mb-2 block">
+                                    Prompt for Image {index + 1}
+                                  </Label>
+                                  <Textarea
+                                    value={imagePrompts[index] || ""}
+                                    onChange={(e) => setImagePrompts({...imagePrompts, [index]: e.target.value})}
+                                    placeholder={`Create a surreal minimalist composition featuring [subject or geometric shape] styled in [neon or material texture]...`}
+                                    rows={4}
+                                    className="bg-wallcraft-card border-wallcraft-card text-foreground font-mono text-sm"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Reference Image */}
                     <div>

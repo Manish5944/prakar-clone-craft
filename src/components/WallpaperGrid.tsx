@@ -1,13 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import WallpaperCard from "./WallpaperCard";
-import gamingSetup from "@/assets/gaming-setup.jpg";
-import abstractCircuit from "@/assets/abstract-circuit.jpg";
-import neonFlowers from "@/assets/neon-flowers.jpg";
-import codingNight from "@/assets/coding-night.jpg";
-import cyberWolf from "@/assets/cyber-wolf.jpg";
-import cyberCity from "@/assets/cyber-city.jpg";
 import { Button } from "./ui/button";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sheet,
   SheetContent,
@@ -21,126 +16,51 @@ import { Label } from "./ui/label";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 
-const WallpaperGrid = () => {
-  const [filterOpen, setFilterOpen] = useState(false);
-  const wallpapers = [
-    {
-      id: 1,
-      image: gamingSetup,
-      title: "ChatGPT Character Design",
-      category: "Midjourney",
-      views: 1247,
-      downloads: 892,
-      likes: 156,
-      promptText: "A fantasy character design with magical elements, vibrant colors and detailed armor",
-      price: 0,
-      rating: 5.0,
-      rank: 1
-    },
-    {
-      id: 2,
-      image: abstractCircuit,
-      title: "Elegant Allure Women",
-      category: "Gemini Image",
-      views: 2109,
-      downloads: 1789,
-      likes: 321,
-      promptText: "Professional portrait photography of elegant women in modern styling",
-      price: 4.99,
-      rating: 5.0,
-      rank: 2
-    },
-    {
-      id: 3,
-      image: neonFlowers,
-      title: "Midjourney Flowers",
-      category: "Midjourney",
-      views: 1345,
-      downloads: 987,
-      likes: 189,
-      promptText: "Beautiful neon flowers with glowing effects in a dark magical garden",
-      price: 0,
-      rating: 5.0
-    },
-    {
-      id: 4,
-      image: codingNight,
-      title: "Stable Diffusion Gaming",
-      category: "Stable Diffusion",
-      views: 2341,
-      downloads: 1567,
-      likes: 234,
-      promptText: "Gaming setup with neon lights, cyberpunk aesthetic, detailed digital art",
-      price: 0,
-      rating: 5.0
-    },
-    {
-      id: 5,
-      image: cyberWolf,
-      title: "Leonardo AI Animal",
-      category: "Leonardo AI",
-      views: 1543,
-      downloads: 1098,
-      likes: 187,
-      promptText: "Cyberpunk wolf with neon accents, futuristic animal portrait",
-      price: 3.99,
-      rating: 5.0
-    },
-    {
-      id: 6,
-      image: cyberCity,
-      title: "Claude Product Design",
-      category: "Claude",
-      views: 1789,
-      downloads: 1234,
-      likes: 267,
-      promptText: "Futuristic city skyline with neon lights and cyberpunk architecture",
-      price: 0,
-      rating: 5.0
-    },
-    {
-      id: 7,
-      image: gamingSetup,
-      title: "Gemini Logo Design",
-      category: "Gemini",
-      views: 3456,
-      downloads: 2103,
-      likes: 445,
-      promptText: "Modern minimalist logo design with geometric shapes and gradient colors",
-      price: 6.99,
-      rating: 5.0
-    },
-    {
-      id: 8,
-      image: codingNight,
-      title: "GPT-4 Code Pattern",
-      category: "GPT-4",
-      views: 2876,
-      downloads: 2134,
-      likes: 456,
-      promptText: "Abstract code pattern visualization with matrix style digital elements",
-      price: 0,
-      rating: 5.0
-    },
-    {
-      id: 9,
-      image: cyberCity,
-      title: "FLUX Icon Design",
-      category: "FLUX",
-      views: 2234,
-      downloads: 1678,
-      likes: 345,
-      promptText: "Set of modern UI icons with minimalist design and consistent style",
-      price: 4.99,
-      rating: 5.0
-    }
-  ];
+interface WallpaperGridProps {
+  searchQuery?: string;
+}
 
-  // Group wallpapers by category for display
-  const groupedWallpapers = {
-    "ASMR Prompts": wallpapers.slice(0, 4),
-    "Fakemon Prompts": wallpapers.slice(4, 8),
+const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [prompts, setPrompts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPrompts();
+  }, [searchQuery]);
+
+  const fetchPrompts = async () => {
+    try {
+      setLoading(true);
+      let query = supabase
+        .from('prompts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setPrompts(data || []);
+    } catch (error) {
+      console.error('Error fetching prompts:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Group prompts by category for display
+  const groupedPrompts: {[key: string]: any[]} = {};
+  prompts.forEach(prompt => {
+    const category = prompt.category || "General";
+    if (!groupedPrompts[category]) {
+      groupedPrompts[category] = [];
+    }
+    groupedPrompts[category].push(prompt);
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -240,32 +160,63 @@ const WallpaperGrid = () => {
         </div>
       </div>
 
-      {/* Grouped Prompts Display */}
-      <div className="space-y-12">
-        {Object.entries(groupedWallpapers).map(([groupName, items]) => (
-          <div key={groupName}>
-            <h2 className="text-2xl font-bold text-foreground mb-6">{groupName}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {items.map((wallpaper, index) => (
-                <WallpaperCard
-                  key={wallpaper.id}
-                  id={wallpaper.id}
-                  image={wallpaper.image}
-                  title={wallpaper.title}
-                  category={wallpaper.category}
-                  views={wallpaper.views}
-                  downloads={wallpaper.downloads}
-                  likes={wallpaper.likes}
-                  promptText={wallpaper.promptText}
-                  price={wallpaper.price}
-                  rating={wallpaper.rating}
-                  rank={index < 15 ? index + 1 : undefined}
-                />
-              ))}
+      {/* Prompts Display */}
+      {loading ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading prompts...</p>
+        </div>
+      ) : prompts.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">
+            {searchQuery ? `No prompts found for "${searchQuery}"` : "No prompts available yet"}
+          </p>
+        </div>
+      ) : Object.keys(groupedPrompts).length > 0 ? (
+        <div className="space-y-12">
+          {Object.entries(groupedPrompts).map(([groupName, items]) => (
+            <div key={groupName}>
+              <h2 className="text-2xl font-bold text-foreground mb-6">{groupName} Prompts</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {items.map((prompt, index) => (
+                  <WallpaperCard
+                    key={prompt.id}
+                    id={prompt.id}
+                    image={prompt.image_url}
+                    title={prompt.title}
+                    category={prompt.category}
+                    views={prompt.views || 0}
+                    downloads={prompt.downloads || 0}
+                    likes={prompt.likes || 0}
+                    promptText={prompt.prompt_text || ""}
+                    price={prompt.price || 0}
+                    rating={prompt.rating || 0}
+                    rank={index < 15 ? index + 1 : undefined}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {prompts.map((prompt, index) => (
+            <WallpaperCard
+              key={prompt.id}
+              id={prompt.id}
+              image={prompt.image_url}
+              title={prompt.title}
+              category={prompt.category}
+              views={prompt.views || 0}
+              downloads={prompt.downloads || 0}
+              likes={prompt.likes || 0}
+              promptText={prompt.prompt_text || ""}
+              price={prompt.price || 0}
+              rating={prompt.rating || 0}
+              rank={index < 15 ? index + 1 : undefined}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
