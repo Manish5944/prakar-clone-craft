@@ -283,38 +283,43 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
         className="group relative bg-wallcraft-card rounded-lg overflow-hidden transition-all duration-300 hover:shadow-card cursor-pointer"
         onClick={handleImageClick}
       >
-        {/* Image container */}
+        {/* 3-Image Collage Container */}
         <div className="relative aspect-[3/4] overflow-hidden">
-          <img 
-            src={image} 
-            alt={title}
-            className="w-full h-full object-cover"
-          />
+          <div className="grid grid-cols-3 gap-0.5 h-full">
+            {/* Display first 3 example images from gallery */}
+            {[0, 1, 2].map((index) => (
+              <div key={index} className="relative overflow-hidden">
+                <img 
+                  src={galleryImages[index]?.image || image} 
+                  alt={`${title} ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
           
+          {/* Overlay with title and category */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
+            <div className="absolute bottom-0 left-0 right-0 p-3">
+              <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded text-xs w-fit mb-2">
+                <span className="text-yellow-400">⚡</span>
+                <span className="text-white font-semibold">{category}</span>
+              </div>
+              <h3 className="text-white font-bold text-sm line-clamp-2">
+                {title}
+              </h3>
+            </div>
+          </div>
+
           {/* Rank badge (top-left for ranked items) */}
           {rank && rank <= 15 && (
-            <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
+            <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg z-10">
               {rank}
             </div>
           )}
           
-          {/* Category badge (top-left when no rank, or top-right when ranked) */}
-          <div className={`absolute ${rank && rank <= 15 ? 'top-2 right-2' : 'top-2 left-2'}`}>
-            <div className="flex items-center gap-1 bg-black/70 backdrop-blur-sm px-2 py-1 rounded text-xs">
-              <span className="text-yellow-400">⚡</span>
-              <span className="text-white font-semibold">{category}</span>
-            </div>
-          </div>
-
-          {/* Rating */}
-          {rating > 0 && (
-            <div className="absolute top-2 right-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
-              {rating.toFixed(1)} <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            </div>
-          )}
-          
           {/* Hover Popup */}
-          <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 z-20">
             <div className="text-center space-y-3">
               <h3 className="text-white font-semibold text-lg">{title}</h3>
               <p className="text-gray-300 text-sm line-clamp-2">{category}</p>
@@ -335,12 +340,8 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-3 space-y-2">
-          <h3 className="font-semibold text-foreground text-sm line-clamp-2 mb-1">
-            {title}
-          </h3>
-          
+        {/* Content - Price and Author Info */}
+        <div className="p-3 space-y-2 bg-wallcraft-card">
           {/* Price & Rating Row */}
           <div className="flex items-center justify-between">
             {price !== undefined && price > 0 ? (
