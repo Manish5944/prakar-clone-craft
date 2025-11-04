@@ -19,12 +19,24 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         
         if (error) throw error;
+        
+        // Check if email is verified
+        if (data.user && !data.user.email_confirmed_at) {
+          toast({
+            title: "Email not verified",
+            description: "Please check your email and verify your account before signing in.",
+            variant: "destructive",
+          });
+          await supabase.auth.signOut();
+          setLoading(false);
+          return;
+        }
         
         toast({
           title: "Welcome back!",
@@ -32,7 +44,7 @@ const Auth = () => {
         });
         navigate("/");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -42,21 +54,37 @@ const Auth = () => {
         
         if (error) throw error;
         
-        toast({
-          title: "Account created!",
-          description: "You can now sign in with your credentials.",
-        });
+        // Check if email confirmation is required
+        if (data.user && !data.user.email_confirmed_at) {
+          toast({
+            title: "Verification email sent!",
+            description: "Please check your email and click the verification link to activate your account.",
+          });
+          setEmail("");
+          setPassword("");
+        } else {
+          toast({
+            title: "Account created!",
+            description: "You can now sign in with your credentials.",
+          });
+          setIsLogin(true);
+        }
       }
     } catch (error: any) {
       let errorMessage = error.message;
       
-      // Provide more user-friendly error messages
+      // Provide more user-friendly error messages in Hindi and English
       if (error.message.includes("Invalid login credentials")) {
-        errorMessage = "Invalid email or password. Please check your credentials and try again.";
+        errorMessage = "गलत email या password। कृपया अपने credentials जांचें। / Invalid email or password. Please check your credentials.";
       } else if (error.message.includes("User already registered")) {
-        errorMessage = "This email is already registered. Please sign in instead.";
+        errorMessage = "यह email पहले से registered है। कृपया sign in करें। / This email is already registered. Please sign in instead.";
+        setIsLogin(true);
       } else if (error.message.includes("Email not confirmed")) {
-        errorMessage = "Please verify your email address before signing in.";
+        errorMessage = "कृपया sign in करने से पहले अपना email verify करें। / Please verify your email address before signing in.";
+      } else if (error.message.includes("Invalid email")) {
+        errorMessage = "कृपया एक valid email address दर्ज करें। / Please enter a valid email address.";
+      } else if (error.message.includes("Password")) {
+        errorMessage = "Password कम से कम 6 characters का होना चाहिए। / Password must be at least 6 characters long.";
       }
       
       toast({
@@ -94,7 +122,8 @@ const Auth = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="bg-wallcraft-darker border-wallcraft-card text-foreground"
-                placeholder="Enter your email"
+                placeholder="example@email.com"
+                autoComplete="email"
               />
             </div>
             
@@ -108,8 +137,10 @@ const Auth = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={6}
                 className="bg-wallcraft-darker border-wallcraft-card text-foreground"
-                placeholder="Enter your password"
+                placeholder="Minimum 6 characters"
+                autoComplete={isLogin ? "current-password" : "new-password"}
               />
             </div>
           </div>
