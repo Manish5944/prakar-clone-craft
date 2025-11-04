@@ -15,10 +15,11 @@ interface ImageGalleryModalProps {
   category: string;
   onOpenPrompt: () => void;
   promptId: string | null;
+  title: string;
+  price: number;
 }
 
-const ImageGalleryModal = ({ isOpen, onClose, images, category, onOpenPrompt, promptId }: ImageGalleryModalProps) => {
-  const [selectedImage, setSelectedImage] = useState(0);
+const ImageGalleryModal = ({ isOpen, onClose, images, category, onOpenPrompt, promptId, title, price }: ImageGalleryModalProps) => {
   const navigate = useNavigate();
 
   const handleAddToCart = () => {
@@ -30,40 +31,57 @@ const ImageGalleryModal = ({ isOpen, onClose, images, category, onOpenPrompt, pr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl bg-wallcraft-dark border-wallcraft-card p-6">
+      <DialogContent className="max-w-2xl bg-wallcraft-dark border-wallcraft-card p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-foreground">{category}</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} className="ml-auto">
             <X className="h-5 w-5" />
           </Button>
         </div>
 
-        {/* Main selected image */}
-        <div className="mb-6">
-          <img 
-            src={images[selectedImage]?.image} 
-            alt={images[selectedImage]?.title}
-            className="w-full h-96 object-cover rounded-lg"
-          />
-        </div>
-
         {/* Grid of 9 images */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-2 mb-6">
           {images.slice(0, 9).map((img, index) => (
             <div 
               key={img.id}
-              className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
-                selectedImage === index ? 'border-wallcraft-cyan' : 'border-transparent'
-              }`}
-              onClick={() => setSelectedImage(index)}
+              className="rounded-lg overflow-hidden aspect-square"
             >
               <img 
                 src={img.image} 
                 alt={img.title}
-                className="w-full h-24 object-cover hover:scale-110 transition-transform"
+                className="w-full h-full object-cover"
               />
             </div>
           ))}
+        </div>
+
+        {/* Prompt Details Section */}
+        <div className="bg-wallcraft-card rounded-lg p-4 mb-4">
+          <div className="flex items-start gap-3">
+            {/* Thumbnail images */}
+            <div className="flex gap-1">
+              {images.slice(0, 3).map((img, index) => (
+                <img 
+                  key={index}
+                  src={img.image} 
+                  alt={`${title} ${index + 1}`}
+                  className="w-12 h-12 object-cover rounded"
+                />
+              ))}
+            </div>
+            
+            {/* Details */}
+            <div className="flex-1">
+              <h3 className="text-foreground font-semibold text-lg mb-1">{title}</h3>
+              <p className="text-muted-foreground text-sm mb-2">{category}</p>
+              <div className="flex items-center justify-between">
+                {price > 0 ? (
+                  <span className="text-wallcraft-cyan font-bold text-xl">${price.toFixed(2)}</span>
+                ) : (
+                  <span className="text-green-400 font-semibold text-sm px-2 py-1 bg-green-400/10 rounded">FREE</span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Add to Cart Button */}
