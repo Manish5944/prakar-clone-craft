@@ -2,6 +2,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ImageGalleryModalProps {
   isOpen: boolean;
@@ -13,10 +14,19 @@ interface ImageGalleryModalProps {
   }>;
   category: string;
   onOpenPrompt: () => void;
+  promptId: string | null;
 }
 
-const ImageGalleryModal = ({ isOpen, onClose, images, category, onOpenPrompt }: ImageGalleryModalProps) => {
+const ImageGalleryModal = ({ isOpen, onClose, images, category, onOpenPrompt, promptId }: ImageGalleryModalProps) => {
   const [selectedImage, setSelectedImage] = useState(0);
+  const navigate = useNavigate();
+
+  const handleAddToCart = () => {
+    if (promptId) {
+      navigate(`/prompt/${promptId}`);
+      onClose();
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -56,14 +66,14 @@ const ImageGalleryModal = ({ isOpen, onClose, images, category, onOpenPrompt }: 
           ))}
         </div>
 
-        {/* Open Prompt Button */}
+        {/* Add to Cart Button */}
         <Button 
           variant="wallcraft" 
           size="lg" 
           className="w-full"
-          onClick={onOpenPrompt}
+          onClick={handleAddToCart}
         >
-          Open Prompt
+          Add to Cart
         </Button>
       </DialogContent>
     </Dialog>

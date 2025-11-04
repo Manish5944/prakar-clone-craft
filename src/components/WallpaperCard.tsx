@@ -374,6 +374,7 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
         images={galleryImages}
         category={category}
         onOpenPrompt={handleOpenPrompt}
+        promptId={promptId}
       />
 
       <PromptDetailModal
