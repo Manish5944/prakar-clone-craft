@@ -34,7 +34,7 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
       setLoading(true);
       let query = supabase
         .from('prompts')
-        .select('*')
+        .select('id, title, category, image_url, views, downloads, likes, price, rating, example_images, prompt_text, description, created_at')
         .order('created_at', { ascending: false });
 
       if (searchQuery.trim()) {
@@ -191,6 +191,7 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
                     price={prompt.price || 0}
                     rating={prompt.rating || 0}
                     rank={index < 15 ? index + 1 : undefined}
+                    exampleImages={prompt.example_images || []}
                   />
                 ))}
               </div>
@@ -213,6 +214,7 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
               price={prompt.price || 0}
               rating={prompt.rating || 0}
               rank={index < 15 ? index + 1 : undefined}
+              exampleImages={prompt.example_images || []}
             />
           ))}
         </div>

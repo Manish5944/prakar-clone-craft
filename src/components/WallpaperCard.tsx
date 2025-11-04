@@ -19,9 +19,10 @@ interface WallpaperCardProps {
   price?: number;
   rating?: number;
   rank?: number;
+  exampleImages?: string[];
 }
 
-const WallpaperCard = ({ id, image, title, category, views, downloads, likes, promptText, price = 0, rating = 0, rank }: WallpaperCardProps) => {
+const WallpaperCard = ({ id, image, title, category, views, downloads, likes, promptText, price = 0, rating = 0, rank, exampleImages = [] }: WallpaperCardProps) => {
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [promptId, setPromptId] = useState<string | null>(null);
@@ -270,12 +271,18 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
     }
   };
 
-  // Mock data for gallery - in real app, fetch from database based on category
-  const galleryImages = Array(9).fill(null).map((_, index) => ({
-    id: id * 10 + index,
-    image: image,
-    title: `${title} - Variation ${index + 1}`
-  }));
+  // Use actual example images from database
+  const galleryImages = exampleImages.length > 0 
+    ? exampleImages.map((img, index) => ({
+        id: id * 10 + index,
+        image: img,
+        title: `${title} - Example ${index + 1}`
+      }))
+    : Array(3).fill(null).map((_, index) => ({
+        id: id * 10 + index,
+        image: image,
+        title: `${title} - Variation ${index + 1}`
+      }));
 
   return (
     <>
@@ -287,10 +294,10 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
         <div className="relative aspect-[3/4] overflow-hidden">
           <div className="grid grid-cols-3 gap-0.5 h-full">
             {/* Display first 3 example images from gallery */}
-            {[0, 1, 2].map((index) => (
+            {galleryImages.slice(0, 3).map((galleryImg, index) => (
               <div key={index} className="relative overflow-hidden">
                 <img 
-                  src={galleryImages[index]?.image || image} 
+                  src={galleryImg.image} 
                   alt={`${title} ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
