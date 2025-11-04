@@ -291,7 +291,7 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
         onClick={handleImageClick}
       >
         {/* 3-Image Collage Container */}
-        <div className="relative aspect-[3/4] overflow-hidden">
+        <div className="relative aspect-[3/4] overflow-hidden bg-wallcraft-darker">
           <div className="grid grid-cols-3 gap-0.5 h-full">
             {/* Display first 3 example images from gallery */}
             {galleryImages.slice(0, 3).map((galleryImg, index) => (
@@ -299,31 +299,39 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
                 <img 
                   src={galleryImg.image} 
                   alt={`${title} ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             ))}
           </div>
           
-          {/* Overlay with title and category */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
-            <div className="absolute bottom-0 left-0 right-0 p-3">
-              <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded text-xs w-fit mb-2">
-                <span className="text-yellow-400">⚡</span>
-                <span className="text-white font-semibold">{category}</span>
-              </div>
-              <h3 className="text-white font-bold text-sm line-clamp-2">
-                {title}
-              </h3>
-            </div>
+          {/* Category badge (top-left) */}
+          <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/70 backdrop-blur-sm px-2 py-1 rounded text-xs z-10">
+            <span className="text-yellow-400">⚡</span>
+            <span className="text-white font-semibold">{category}</span>
           </div>
 
-          {/* Rank badge (top-left for ranked items) */}
+          {/* Rating badge (top-right) */}
+          {rating !== undefined && rating > 0 && (
+            <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/70 backdrop-blur-sm px-2 py-1 rounded text-xs z-10">
+              <span className="text-white font-semibold">{rating.toFixed(1)}</span>
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+            </div>
+          )}
+
+          {/* Rank badge (top-left corner number for top 15) */}
           {rank && rank <= 15 && (
-            <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg z-10">
+            <div className="absolute top-0 left-0 bg-gradient-to-br from-yellow-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-br-lg shadow-lg z-20">
               {rank}
             </div>
           )}
+          
+          {/* Bottom title overlay */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3">
+            <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
+              {title}
+            </h3>
+          </div>
           
           {/* Hover Popup */}
           <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 z-20">
@@ -347,21 +355,13 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
           </div>
         </div>
 
-        {/* Content - Price and Author Info */}
-        <div className="p-3 space-y-2 bg-wallcraft-card">
-          {/* Price & Rating Row */}
-          <div className="flex items-center justify-between">
+        {/* Content - Price */}
+        <div className="p-2.5 bg-wallcraft-card">
+          <div className="flex items-center justify-start">
             {price !== undefined && price > 0 ? (
-              <span className="text-wallcraft-cyan font-bold">${price.toFixed(2)}</span>
+              <span className="text-wallcraft-cyan font-bold text-sm">${price.toFixed(2)}</span>
             ) : (
-              <span className="text-green-400 font-semibold text-xs">FREE</span>
-            )}
-            
-            {rating !== undefined && rating > 0 && (
-              <div className="flex items-center gap-1">
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                <span className="text-foreground text-xs font-medium">{rating.toFixed(1)}</span>
-              </div>
+              <span className="text-green-400 font-semibold text-xs px-2 py-0.5 bg-green-400/10 rounded">FREE</span>
             )}
           </div>
         </div>
