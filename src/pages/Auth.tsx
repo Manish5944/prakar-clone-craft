@@ -1,19 +1,101 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [authMethod, setAuthMethod] = useState<"password" | "otp">("otp");
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleAuth = async (e: React.FormEvent) => {
+  // Check if user is already logged in
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        navigate("/");
+      }
+    });
+  }, [navigate]);
+
+  const handleSendOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) throw error;
+
+      setOtpSent(true);
+      toast({
+        title: "OTP भेजा गया! / OTP Sent!",
+        description: "कृपया अपना email check करें। / Please check your email.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length !== 6) {
+      toast({
+        title: "Invalid OTP",
+        description: "कृपया 6 digit OTP दर्ज करें। / Please enter 6 digit OTP.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email',
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "सफलतापूर्वक login हो गए! / Successfully logged in!",
+        description: "Welcome back!",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "गलत OTP। कृपया दोबारा प्रयास करें। / Invalid OTP. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -26,7 +108,6 @@ const Auth = () => {
         
         if (error) throw error;
         
-        // Check if email is verified
         if (data.user && !data.user.email_confirmed_at) {
           toast({
             title: "Email not verified",
@@ -54,7 +135,6 @@ const Auth = () => {
         
         if (error) throw error;
         
-        // Check if email confirmation is required
         if (data.user && !data.user.email_confirmed_at) {
           toast({
             title: "Verification email sent!",
@@ -73,18 +153,11 @@ const Auth = () => {
     } catch (error: any) {
       let errorMessage = error.message;
       
-      // Provide more user-friendly error messages in Hindi and English
       if (error.message.includes("Invalid login credentials")) {
-        errorMessage = "गलत email या password। कृपया अपने credentials जांचें। / Invalid email or password. Please check your credentials.";
+        errorMessage = "गलत email या password। / Invalid email or password.";
       } else if (error.message.includes("User already registered")) {
-        errorMessage = "यह email पहले से registered है। कृपया sign in करें। / This email is already registered. Please sign in instead.";
+        errorMessage = "यह email पहले से registered है। / This email is already registered.";
         setIsLogin(true);
-      } else if (error.message.includes("Email not confirmed")) {
-        errorMessage = "कृपया sign in करने से पहले अपना email verify करें। / Please verify your email address before signing in.";
-      } else if (error.message.includes("Invalid email")) {
-        errorMessage = "कृपया एक valid email address दर्ज करें। / Please enter a valid email address.";
-      } else if (error.message.includes("Password")) {
-        errorMessage = "Password कम से कम 6 characters का होना चाहिए। / Password must be at least 6 characters long.";
       }
       
       toast({
@@ -109,60 +182,148 @@ const Auth = () => {
           </p>
         </div>
 
-        <form onSubmit={handleAuth} className="mt-8 space-y-6 bg-wallcraft-card p-8 rounded-lg">
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-wallcraft-darker border-wallcraft-card text-foreground"
-                placeholder="example@email.com"
-                autoComplete="email"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="bg-wallcraft-darker border-wallcraft-card text-foreground"
-                placeholder="Minimum 6 characters"
-                autoComplete={isLogin ? "current-password" : "new-password"}
-              />
-            </div>
-          </div>
+        <div className="bg-wallcraft-card p-8 rounded-lg">
+          <Tabs value={authMethod} onValueChange={(v) => setAuthMethod(v as "password" | "otp")} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="otp">OTP से Login</TabsTrigger>
+              <TabsTrigger value="password">Password से Login</TabsTrigger>
+            </TabsList>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-primary hover:opacity-90"
-          >
-            {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
-          </Button>
+            {/* OTP Authentication */}
+            <TabsContent value="otp" className="space-y-4">
+              {!otpSent ? (
+                <form onSubmit={handleSendOTP} className="space-y-4">
+                  <div>
+                    <label htmlFor="otp-email" className="block text-sm font-medium text-foreground mb-2">
+                      Email
+                    </label>
+                    <Input
+                      id="otp-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="bg-wallcraft-darker border-wallcraft-card text-foreground"
+                      placeholder="example@email.com"
+                      autoComplete="email"
+                    />
+                  </div>
 
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-            </button>
-          </div>
-        </form>
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-gradient-primary hover:opacity-90"
+                  >
+                    {loading ? "भेजा जा रहा है... / Sending..." : "OTP भेजें / Send OTP"}
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOTP} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      OTP दर्ज करें / Enter OTP
+                    </label>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      {email} पर भेजा गया OTP दर्ज करें
+                    </p>
+                    <div className="flex justify-center">
+                      <InputOTP
+                        value={otp}
+                        onChange={setOtp}
+                        maxLength={6}
+                      >
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={loading || otp.length !== 6}
+                    className="w-full bg-gradient-primary hover:opacity-90"
+                  >
+                    {loading ? "Verify कर रहे हैं... / Verifying..." : "Verify करें और Login करें"}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtp("");
+                    }}
+                    className="w-full"
+                  >
+                    दोबारा OTP भेजें / Resend OTP
+                  </Button>
+                </form>
+              )}
+            </TabsContent>
+
+            {/* Password Authentication */}
+            <TabsContent value="password" className="space-y-4">
+              <form onSubmit={handlePasswordAuth} className="space-y-4">
+                <div>
+                  <label htmlFor="password-email" className="block text-sm font-medium text-foreground mb-2">
+                    Email
+                  </label>
+                  <Input
+                    id="password-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="bg-wallcraft-darker border-wallcraft-card text-foreground"
+                    placeholder="example@email.com"
+                    autoComplete="email"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="bg-wallcraft-darker border-wallcraft-card text-foreground"
+                    placeholder="Minimum 6 characters"
+                    autoComplete={isLogin ? "current-password" : "new-password"}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-primary hover:opacity-90"
+                >
+                  {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
+                </Button>
+
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsLogin(!isLogin)}
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+                  </button>
+                </div>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
