@@ -37,19 +37,18 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
 
   const getOrCreatePrompt = async () => {
     try {
-      // Check if prompt exists
+      // Check if prompt exists by image_url to avoid duplicates
       const { data: existingPrompt } = await supabase
         .from('prompts')
         .select('id')
-        .eq('title', title)
-        .eq('category', category)
-        .single();
+        .eq('image_url', image)
+        .maybeSingle();
 
       if (existingPrompt) {
         setPromptId(existingPrompt.id);
       } else {
-        // Create new prompt
-        const { data: newPrompt } = await supabase
+        // Create new prompt only if it doesn't exist
+        const { data: newPrompt, error } = await supabase
           .from('prompts')
           .insert({
             title,
@@ -60,9 +59,9 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
             likes
           })
           .select('id')
-          .single();
+          .maybeSingle();
 
-        if (newPrompt) {
+        if (!error && newPrompt) {
           setPromptId(newPrompt.id);
         }
       }
@@ -291,7 +290,7 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
         onClick={handleImageClick}
       >
         {/* 3-Image Collage Container */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-wallcraft-darker">
+        <div className="relative aspect-[3/3.5] overflow-hidden bg-wallcraft-darker">
           <div className="grid grid-cols-3 gap-0.5 h-full">
             {/* Display first 3 example images from gallery */}
             {galleryImages.slice(0, 3).map((galleryImg, index) => (
