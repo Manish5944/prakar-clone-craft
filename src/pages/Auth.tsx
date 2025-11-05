@@ -32,7 +32,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { data, error } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
@@ -41,10 +41,25 @@ const Auth = () => {
 
       if (error) throw error;
 
+      // Send custom OTP email
+      if (data) {
+        try {
+          await supabase.functions.invoke('send-otp-email', {
+            body: { 
+              email,
+              otp: "Check your email for the OTP code"
+            }
+          });
+        } catch (emailError) {
+          console.error("Custom email error:", emailError);
+          // Continue even if custom email fails, as Supabase's default email was sent
+        }
+      }
+
       setOtpSent(true);
       toast({
         title: "OTP भेजा गया! / OTP Sent!",
-        description: "कृपया अपना email check करें। / Please check your email.",
+        description: "कृपया अपना email check करें। Prompt Copy से आया OTP दर्ज करें। / Please check your email for OTP from Prompt Copy.",
       });
     } catch (error: any) {
       toast({
