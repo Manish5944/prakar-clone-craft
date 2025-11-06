@@ -176,7 +176,7 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
           {Object.entries(groupedPrompts).map(([groupName, items]) => (
             <div key={groupName}>
               <h2 className="text-2xl font-bold text-foreground mb-6">{groupName} Prompts</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {items.map((prompt, index) => (
                   <WallpaperCard
                     key={prompt.id}
@@ -199,7 +199,7 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {prompts.map((prompt, index) => (
             <WallpaperCard
               key={prompt.id}

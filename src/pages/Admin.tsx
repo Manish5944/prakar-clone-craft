@@ -76,10 +76,8 @@ const Admin = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="image">Image</SelectItem>
-                      <SelectItem value="text">Text</SelectItem>
-                      <SelectItem value="code">Code</SelectItem>
-                      <SelectItem value="audio">Audio</SelectItem>
                       <SelectItem value="video">Video</SelectItem>
+                      <SelectItem value="text">Text</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -99,41 +97,40 @@ const Admin = () => {
                     <SelectContent>
                       {formData.generationType === "image" && (
                         <>
-                          <SelectItem value="midjourney">Midjourney</SelectItem>
-                          <SelectItem value="dalle">DALL-E</SelectItem>
-                          <SelectItem value="stable-diffusion">Stable Diffusion</SelectItem>
-                          <SelectItem value="leonardo-ai">Leonardo AI</SelectItem>
+                          <SelectItem value="chatgpt-image">ChatGPT Image</SelectItem>
                           <SelectItem value="flux">FLUX</SelectItem>
-                        </>
-                      )}
-                      {formData.generationType === "text" && (
-                        <>
-                          <SelectItem value="chatgpt">ChatGPT</SelectItem>
-                          <SelectItem value="gpt4">GPT-4</SelectItem>
-                          <SelectItem value="claude">Claude</SelectItem>
-                          <SelectItem value="gemini">Gemini</SelectItem>
-                        </>
-                      )}
-                      {formData.generationType === "code" && (
-                        <>
-                          <SelectItem value="github-copilot">GitHub Copilot</SelectItem>
-                          <SelectItem value="gpt4-code">GPT-4 Code</SelectItem>
-                          <SelectItem value="codex">Codex</SelectItem>
-                        </>
-                      )}
-                      {formData.generationType === "audio" && (
-                        <>
-                          <SelectItem value="elevenlabs">ElevenLabs</SelectItem>
-                          <SelectItem value="murf">Murf AI</SelectItem>
-                          <SelectItem value="play-ht">Play.ht</SelectItem>
+                          <SelectItem value="gemini-image">Gemini Image</SelectItem>
+                          <SelectItem value="grok-image">Grok Image</SelectItem>
+                          <SelectItem value="hunyuan">Hunyuan</SelectItem>
+                          <SelectItem value="ideogram">Ideogram</SelectItem>
+                          <SelectItem value="imagen">Imagen</SelectItem>
+                          <SelectItem value="leonardo-ai">Leonardo AI</SelectItem>
+                          <SelectItem value="midjourney">Midjourney</SelectItem>
+                          <SelectItem value="qwen-image">Qwen Image</SelectItem>
+                          <SelectItem value="recraft">Recraft</SelectItem>
+                          <SelectItem value="seedream">Seedream</SelectItem>
+                          <SelectItem value="stable-diffusion">Stable Diffusion</SelectItem>
                         </>
                       )}
                       {formData.generationType === "video" && (
                         <>
+                          <SelectItem value="hailuo-ai">Hailuo AI</SelectItem>
+                          <SelectItem value="kling-ai">KLING AI</SelectItem>
+                          <SelectItem value="midjourney-video">Midjourney Video</SelectItem>
+                          <SelectItem value="seedance">Seedance</SelectItem>
                           <SelectItem value="sora">Sora</SelectItem>
-                          <SelectItem value="runway">Runway ML</SelectItem>
-                          <SelectItem value="pika">Pika Labs</SelectItem>
-                          <SelectItem value="synthesia">Synthesia</SelectItem>
+                          <SelectItem value="veo">Veo</SelectItem>
+                          <SelectItem value="wan">Wan</SelectItem>
+                        </>
+                      )}
+                      {formData.generationType === "text" && (
+                        <>
+                          <SelectItem value="claude">Claude</SelectItem>
+                          <SelectItem value="deepseek">DeepSeek</SelectItem>
+                          <SelectItem value="gemini">Gemini</SelectItem>
+                          <SelectItem value="chatgpt">ChatGPT</SelectItem>
+                          <SelectItem value="grok">Grok</SelectItem>
+                          <SelectItem value="llama">Llama</SelectItem>
                         </>
                       )}
                     </SelectContent>

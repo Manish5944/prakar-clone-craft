@@ -31,7 +31,7 @@ const ImageGalleryModal = ({ isOpen, onClose, images, category, onOpenPrompt, pr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-wallcraft-dark border-wallcraft-card p-3">
+      <DialogContent className="max-w-sm bg-wallcraft-dark border-wallcraft-card p-3 scale-90">
         <div className="flex justify-between items-center mb-2">
           <Button variant="ghost" size="icon" onClick={onClose} className="ml-auto h-6 w-6">
             <X className="h-3 w-3" />
