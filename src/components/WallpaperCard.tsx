@@ -286,11 +286,11 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
   return (
     <>
       <div 
-        className="group relative bg-wallcraft-card rounded-lg overflow-hidden transition-all duration-300 hover:shadow-card cursor-pointer"
+        className="group relative bg-wallcraft-card rounded-lg overflow-hidden transition-all duration-300 hover:shadow-card cursor-pointer w-[250px]"
         onClick={handleImageClick}
       >
         {/* 3-Image Collage Container */}
-        <div className="relative aspect-[3/3.5] overflow-hidden bg-wallcraft-darker">
+        <div className="relative h-[140px] overflow-hidden bg-wallcraft-darker">
           <div className="grid grid-cols-3 gap-0.5 h-full">
             {/* Display first 3 example images from gallery */}
             {galleryImages.slice(0, 3).map((galleryImg, index) => (

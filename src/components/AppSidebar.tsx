@@ -1,4 +1,4 @@
-import { Home, Heart, Download, Settings, Crown, HelpCircle, Star, Share2, Music, Users, FileText, Shield } from "lucide-react";
+import { Home, Heart, Download, Settings, Crown, HelpCircle, FileText, Shield } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 import {
@@ -26,10 +26,6 @@ const settingsItems = [
 ];
 
 const socialItems = [
-  { title: "Rate App", url: "#rate", icon: Star, external: true },
-  { title: "Share App", url: "#share", icon: Share2, external: true },
-  { title: "Follow on TikTok", url: "https://tiktok.com", icon: Music, external: true },
-  { title: "Artist Program", url: "/artist-program", icon: Users },
   { title: "Terms & Privacy", url: "/terms", icon: FileText },
   { title: "Admin Panel", url: "/admin", icon: Shield },
 ];
@@ -116,25 +112,13 @@ export function AppSidebar() {
               {socialItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    {item.external && item.url.startsWith('http') ? (
-                      <a 
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={getNavClass(false)}
-                      >
-                        <item.icon className="h-5 w-5 flex-shrink-0" />
-                        <span>{item.title}</span>
-                      </a>
-                    ) : (
-                      <NavLink 
-                        to={item.url} 
-                        className={({ isActive }) => getNavClass(isActive)}
-                      >
-                        <item.icon className="h-5 w-5 flex-shrink-0" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    )}
+                    <NavLink 
+                      to={item.url} 
+                      className={({ isActive }) => getNavClass(isActive)}
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <span>{item.title}</span>
+                    </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

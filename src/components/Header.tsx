@@ -1,4 +1,4 @@
-import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2, Send, User, LogOut, Bell } from "lucide-react";
+import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2, Send, User, LogOut, Bell, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -188,15 +188,26 @@ const Header = ({ onSearch }: HeaderProps) => {
 
           <div className="flex items-center gap-2">
             {user && (
-              <Button 
-                variant="wallcraft-ghost" 
-                size="icon" 
-                className="text-white relative hover:bg-wallcraft-card"
-                onClick={() => navigate("/notifications")}
-                title="Notifications"
-              >
-                <Bell className="h-5 w-5" />
-              </Button>
+              <>
+                <Button 
+                  variant="wallcraft-ghost" 
+                  size="icon" 
+                  className="text-white relative hover:bg-wallcraft-card"
+                  onClick={() => navigate("/notifications")}
+                  title="Notifications"
+                >
+                  <Bell className="h-5 w-5" />
+                </Button>
+                <Button 
+                  variant="wallcraft-ghost" 
+                  size="icon" 
+                  className="text-white relative hover:bg-wallcraft-card"
+                  onClick={() => navigate("/purchases")}
+                  title="Purchases"
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                </Button>
+              </>
             )}
             
             {user ? (

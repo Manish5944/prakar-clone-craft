@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import Premium from "./pages/Premium";
 import Support from "./pages/Support";
 import Notifications from "./pages/Notifications";
+import Purchases from "./pages/Purchases";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/premium" element={<Premium />} />
           <Route path="/support" element={<Support />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/purchases" element={<Purchases />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/prompt-file" element={<AdminPromptFile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
