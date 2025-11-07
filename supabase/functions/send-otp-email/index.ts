@@ -86,6 +86,9 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
+    // NOTE: In Resend's free tier, you can only send to your verified email (k.mantu9004@gmail.com)
+    // To send to any email, verify a domain at resend.com/domains and update the 'from' address
+    // Example: from: "Prompt Copy <noreply@yourdomain.com>"
     const { data, error } = await resend.emails.send({
       from: "Prompt Copy <onboarding@resend.dev>",
       to: [email],
