@@ -3,7 +3,10 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { ExternalLink, Trash2, HelpCircle, Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,7 +27,14 @@ const AdminPromptFile = () => {
     soraVersion: "2.0",
     duration: "10s",
     aspectRatio: "9:16",
-    resolution: "720p"
+    resolution: "720p",
+    // Video model specific fields
+    version: "",
+    enhancePrompt: false,
+    generateAudioSync: false,
+    promptOptimizer: false,
+    cameraFixed: false,
+    seed: ""
   });
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
@@ -234,44 +244,198 @@ const AdminPromptFile = () => {
                 {/* Conditional rendering based on generation type */}
                 {isVideoGeneration ? (
                   <>
-                    {/* Sora Version */}
-                    <div>
-                      <Label htmlFor="soraVersion" className="text-lg font-semibold text-foreground mb-2 block">
-                        Sora version
-                      </Label>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        What version of Sora does this prompt use?
-                      </p>
-                      <Select value={formData.soraVersion} onValueChange={(value) => setFormData({...formData, soraVersion: value})}>
-                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                          <SelectValue placeholder="2.0" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2.0">2.0</SelectItem>
-                          <SelectItem value="1.5">1.5</SelectItem>
-                          <SelectItem value="1.0">1.0</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {/* Video Model Specific Features */}
+                    {previousData.model && (
+                      <>
+                        {/* Version Selector - for Veo, Hailuo, KLING, Seedance, Wan */}
+                        {["veo", "hailuo-ai", "kling-ai", "seedance", "wan"].includes(previousData.model) && (
+                          <div>
+                            <Label htmlFor="version" className="text-lg font-semibold text-foreground mb-2 block">
+                              {previousData.model === "veo" ? "Veo Version" : "Version"}
+                            </Label>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Select the version of the model
+                            </p>
+                            <Select value={formData.version} onValueChange={(value) => setFormData({...formData, version: value})}>
+                              <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                                <SelectValue placeholder="Select Version" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="v1">Version 1.0</SelectItem>
+                                <SelectItem value="v2">Version 2.0</SelectItem>
+                                <SelectItem value="v3">Version 3.0</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
 
-                    {/* Generation Type for Videos */}
-                    <div>
-                      <Label htmlFor="genType" className="text-lg font-semibold text-foreground mb-2 block">
-                        Generation type
-                      </Label>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Is this a text-to-video or image-to-video prompt?
-                      </p>
-                      <Select value={formData.generationType} onValueChange={(value) => setFormData({...formData, generationType: value})}>
-                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                          <SelectValue placeholder="Text to video" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="text-to-video">Text to video</SelectItem>
-                          <SelectItem value="image-to-video">Image to video</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        {/* Duration - for Sora, Veo, KLING */}
+                        {["sora", "veo", "kling-ai"].includes(previousData.model) && (
+                          <div>
+                            <Label htmlFor="duration" className="text-lg font-semibold text-foreground mb-2 block">
+                              Duration
+                            </Label>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Select video duration
+                            </p>
+                            <Select value={formData.duration} onValueChange={(value) => setFormData({...formData, duration: value})}>
+                              <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                                <SelectValue placeholder="Select Duration" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="5s">5 seconds</SelectItem>
+                                <SelectItem value="10s">10 seconds</SelectItem>
+                                <SelectItem value="15s">15 seconds</SelectItem>
+                                <SelectItem value="30s">30 seconds</SelectItem>
+                                <SelectItem value="60s">60 seconds</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        {/* Aspect Ratio - for Sora, Veo, KLING, Seedance, Wan */}
+                        {["sora", "veo", "kling-ai", "seedance", "wan"].includes(previousData.model) && (
+                          <div>
+                            <Label htmlFor="aspectRatio" className="text-lg font-semibold text-foreground mb-2 block">
+                              Aspect Ratio
+                            </Label>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Select video aspect ratio
+                            </p>
+                            <Select value={formData.aspectRatio} onValueChange={(value) => setFormData({...formData, aspectRatio: value})}>
+                              <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                                <SelectValue placeholder="Select Aspect Ratio" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="16:9">16:9 (Landscape)</SelectItem>
+                                <SelectItem value="9:16">9:16 (Portrait)</SelectItem>
+                                <SelectItem value="1:1">1:1 (Square)</SelectItem>
+                                <SelectItem value="4:3">4:3 (Standard)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        {/* Resolution - for Sora only */}
+                        {previousData.model === "sora" && (
+                          <div>
+                            <Label htmlFor="resolution" className="text-lg font-semibold text-foreground mb-2 block">
+                              Resolution
+                            </Label>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Select video resolution
+                            </p>
+                            <Select value={formData.resolution} onValueChange={(value) => setFormData({...formData, resolution: value})}>
+                              <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
+                                <SelectValue placeholder="Select Resolution" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="720p">720p HD</SelectItem>
+                                <SelectItem value="1080p">1080p Full HD</SelectItem>
+                                <SelectItem value="2k">2K</SelectItem>
+                                <SelectItem value="4k">4K Ultra HD</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        {/* Enhance Prompt - for Veo only */}
+                        {previousData.model === "veo" && (
+                          <div className="flex items-center justify-between p-4 bg-wallcraft-card rounded-lg">
+                            <div>
+                              <Label htmlFor="enhancePrompt" className="text-lg font-semibold text-foreground">
+                                Enhance Prompt
+                              </Label>
+                              <p className="text-sm text-muted-foreground">
+                                Automatically enhance and optimize your prompt
+                              </p>
+                            </div>
+                            <Switch
+                              id="enhancePrompt"
+                              checked={formData.enhancePrompt}
+                              onCheckedChange={(checked) => setFormData({...formData, enhancePrompt: checked})}
+                            />
+                          </div>
+                        )}
+
+                        {/* Generate Audio Sync - for Veo only */}
+                        {previousData.model === "veo" && (
+                          <div className="flex items-center justify-between p-4 bg-wallcraft-card rounded-lg">
+                            <div>
+                              <Label htmlFor="generateAudioSync" className="text-lg font-semibold text-foreground">
+                                Generate Audio Sync
+                              </Label>
+                              <p className="text-sm text-muted-foreground">
+                                Synchronize audio with video generation
+                              </p>
+                            </div>
+                            <Switch
+                              id="generateAudioSync"
+                              checked={formData.generateAudioSync}
+                              onCheckedChange={(checked) => setFormData({...formData, generateAudioSync: checked})}
+                            />
+                          </div>
+                        )}
+
+                        {/* Prompt Optimizer - for Hailuo only */}
+                        {previousData.model === "hailuo-ai" && (
+                          <div className="flex items-center justify-between p-4 bg-wallcraft-card rounded-lg">
+                            <div>
+                              <Label htmlFor="promptOptimizer" className="text-lg font-semibold text-foreground">
+                                Prompt Optimizer
+                              </Label>
+                              <p className="text-sm text-muted-foreground">
+                                Optimize your prompt for better results
+                              </p>
+                            </div>
+                            <Switch
+                              id="promptOptimizer"
+                              checked={formData.promptOptimizer}
+                              onCheckedChange={(checked) => setFormData({...formData, promptOptimizer: checked})}
+                            />
+                          </div>
+                        )}
+
+                        {/* Camera Fixed Control - for Seedance only */}
+                        {previousData.model === "seedance" && (
+                          <div className="flex items-center justify-between p-4 bg-wallcraft-card rounded-lg">
+                            <div>
+                              <Label htmlFor="cameraFixed" className="text-lg font-semibold text-foreground">
+                                Camera Fixed Control
+                              </Label>
+                              <p className="text-sm text-muted-foreground">
+                                Keep camera position fixed during generation
+                              </p>
+                            </div>
+                            <Switch
+                              id="cameraFixed"
+                              checked={formData.cameraFixed}
+                              onCheckedChange={(checked) => setFormData({...formData, cameraFixed: checked})}
+                            />
+                          </div>
+                        )}
+
+                        {/* Seed (Optional) - for Seedance only */}
+                        {previousData.model === "seedance" && (
+                          <div>
+                            <Label htmlFor="seed" className="text-lg font-semibold text-foreground mb-2 block">
+                              Seed (Optional)
+                            </Label>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Enter a seed value for reproducible results
+                            </p>
+                            <Input
+                              id="seed"
+                              type="number"
+                              value={formData.seed}
+                              onChange={(e) => setFormData({...formData, seed: e.target.value})}
+                              placeholder="Enter seed number"
+                              className="bg-wallcraft-card border-wallcraft-card text-foreground"
+                            />
+                          </div>
+                        )}
+                      </>
+                    )}
 
                     {/* Example Videos */}
                     <div>
@@ -311,69 +475,6 @@ const AdminPromptFile = () => {
                       </div>
                     </div>
 
-                    {/* Duration */}
-                    <div>
-                      <Label htmlFor="duration" className="text-lg font-semibold text-foreground mb-2 block">
-                        Duration
-                      </Label>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Select the duration of the videos generated by this prompt.
-                      </p>
-                      <Select value={formData.duration} onValueChange={(value) => setFormData({...formData, duration: value})}>
-                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                          <SelectValue placeholder="10s" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="5s">5s</SelectItem>
-                          <SelectItem value="10s">10s</SelectItem>
-                          <SelectItem value="15s">15s</SelectItem>
-                          <SelectItem value="20s">20s</SelectItem>
-                          <SelectItem value="30s">30s</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Aspect Ratio */}
-                    <div>
-                      <Label htmlFor="aspectRatio" className="text-lg font-semibold text-foreground mb-2 block">
-                        Aspect ratio
-                      </Label>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Select the aspect ratio of the videos generated by this prompt.
-                      </p>
-                      <Select value={formData.aspectRatio} onValueChange={(value) => setFormData({...formData, aspectRatio: value})}>
-                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                          <SelectValue placeholder="9:16" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="16:9">16:9</SelectItem>
-                          <SelectItem value="9:16">9:16</SelectItem>
-                          <SelectItem value="1:1">1:1</SelectItem>
-                          <SelectItem value="4:3">4:3</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Resolution */}
-                    <div>
-                      <Label htmlFor="resolution" className="text-lg font-semibold text-foreground mb-2 block">
-                        Resolution
-                      </Label>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Select the resolution of the videos generated by this prompt.
-                      </p>
-                      <Select value={formData.resolution} onValueChange={(value) => setFormData({...formData, resolution: value})}>
-                        <SelectTrigger className="bg-wallcraft-card border-wallcraft-card text-foreground">
-                          <SelectValue placeholder="720p" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="480p">480p</SelectItem>
-                          <SelectItem value="720p">720p</SelectItem>
-                          <SelectItem value="1080p">1080p</SelectItem>
-                          <SelectItem value="4k">4K</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </>
                 ) : (
                   <>

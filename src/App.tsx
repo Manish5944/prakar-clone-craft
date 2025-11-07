@@ -16,6 +16,7 @@ import Premium from "./pages/Premium";
 import Support from "./pages/Support";
 import Notifications from "./pages/Notifications";
 import Purchases from "./pages/Purchases";
+import PhoneAuth from "./pages/PhoneAuth";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/phone-auth" element={<PhoneAuth />} />
           <Route path="/prompt/:id" element={<PromptDetail />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/downloads" element={<Downloads />} />
