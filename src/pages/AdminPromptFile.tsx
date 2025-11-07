@@ -34,7 +34,8 @@ const AdminPromptFile = () => {
     generateAudioSync: false,
     promptOptimizer: false,
     cameraFixed: false,
-    seed: ""
+    seed: "",
+    hailuoVideoLink: ""
   });
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
@@ -633,6 +634,26 @@ const AdminPromptFile = () => {
                     className="bg-wallcraft-card border-wallcraft-card text-foreground"
                   />
                 </div>
+
+                {/* Hailuo Video Link - Only for Hailuo AI */}
+                {isVideoGeneration && previousData.model === "hailuo-ai" && (
+                  <div>
+                    <Label htmlFor="hailuoVideoLink" className="text-lg font-semibold text-foreground mb-2 block">
+                      Hailuo Video Share Link
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Copy and paste the Hailuo.video share link to this example you provided. We do not share this link with anyone. You can unpublish this video from Hailuo.video once your prompt has been approved.
+                    </p>
+                    <Input
+                      id="hailuoVideoLink"
+                      type="url"
+                      value={formData.hailuoVideoLink}
+                      onChange={(e) => setFormData({...formData, hailuoVideoLink: e.target.value})}
+                      placeholder="https://hailuo.video/share/..."
+                      className="bg-wallcraft-card border-wallcraft-card text-foreground"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
