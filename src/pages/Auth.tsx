@@ -31,9 +31,11 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     try {
-      const { data, error } = await supabase.auth.signInWithOtp({
-        email,
+      const { error } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
         },
@@ -41,20 +43,7 @@ const Auth = () => {
 
       if (error) throw error;
 
-      // Send custom OTP email
-      if (data) {
-        try {
-          await supabase.functions.invoke('send-otp-email', {
-            body: { 
-              email,
-              otp: "Check your email for the OTP code"
-            }
-          });
-        } catch (emailError) {
-          console.error("Custom email error:", emailError);
-          // Continue even if custom email fails, as Supabase's default email was sent
-        }
-      }
+      // We rely on the built-in OTP email delivery.
 
       setOtpSent(true);
       toast({
@@ -71,7 +60,6 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length !== 6) {
@@ -85,9 +73,11 @@ const Auth = () => {
 
     setLoading(true);
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     try {
       const { error } = await supabase.auth.verifyOtp({
-        email,
+        email: normalizedEmail,
         token: otp,
         type: 'email',
       });
@@ -114,13 +104,15 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     try {
       if (isLogin) {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
+          email: normalizedEmail,
           password,
         });
-        
+
         if (error) throw error;
         
         if (data.user && !data.user.email_confirmed_at) {
@@ -141,7 +133,7 @@ const Auth = () => {
         navigate("/");
       } else {
         const { data, error } = await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,

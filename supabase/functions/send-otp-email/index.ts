@@ -20,7 +20,26 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, otp }: OTPEmailRequest = await req.json();
+    const body = await req.json().catch(() => ({} as Record<string, unknown>));
+
+    const email = typeof (body as any).email === "string"
+      ? ((body as any).email as string).trim().toLowerCase()
+      : "";
+    const otp = typeof (body as any).otp === "string" ? ((body as any).otp as string).trim() : "";
+
+    if (!email) {
+      return new Response(JSON.stringify({ error: "Missing email" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    if (!otp) {
+      return new Response(JSON.stringify({ error: "Missing otp" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     console.log("Sending OTP email to:", email);
 
@@ -86,9 +105,8 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
-    // NOTE: In Resend's free tier, you can only send to your verified email (k.mantu9004@gmail.com)
-    // To send to any email, verify a domain at resend.com/domains and update the 'from' address
-    // Example: from: "Prompt Copy <noreply@yourdomain.com>"
+    // NOTE: In Resend's free tier, you can only send to your verified email
+    // To send to any email, verify a domain and update the 'from' address
     const { data, error } = await resend.emails.send({
       from: "Prompt Copy <onboarding@resend.dev>",
       to: [email],
@@ -97,8 +115,23 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (error) {
-      console.error("Error sending email:", error);
-      throw error;
+      console.error("Resend rejected OTP email:", error);
+
+      // Return 200 so the frontend doesn't treat this as a hard failure
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: error.message ?? "Email provider rejected request",
+          hint:
+            typeof error.message === "string" && error.message.includes("verify a domain")
+              ? "Verify a sending domain and use a from address on that domain to email any recipient."
+              : undefined,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
     }
 
     console.log("Email sent successfully:", data);
@@ -112,13 +145,10 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("Error in send-otp-email function:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 };
 
