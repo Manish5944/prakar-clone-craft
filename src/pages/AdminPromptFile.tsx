@@ -35,7 +35,15 @@ const AdminPromptFile = () => {
     promptOptimizer: false,
     cameraFixed: false,
     seed: "",
-    hailuoVideoLink: ""
+    hailuoVideoLink: "",
+    // New fields for various models
+    negativePrompt: "",
+    midjourneyVideoLink: "",
+    soraVideoLink: "",
+    veoVideoLink: "",
+    wanSeed: "",
+    wanNegativePrompt: "",
+    wanEnhancePrompt: false
   });
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
@@ -435,6 +443,79 @@ const AdminPromptFile = () => {
                             />
                           </div>
                         )}
+
+                        {/* Negative Prompt - for Kling AI */}
+                        {previousData.model === "kling-ai" && (
+                          <div>
+                            <Label htmlFor="negativePrompt" className="text-lg font-semibold text-foreground mb-2 block">
+                              Negative Prompt
+                            </Label>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Specify what you don't want in the generated video
+                            </p>
+                            <Textarea
+                              id="negativePrompt"
+                              value={formData.negativePrompt}
+                              onChange={(e) => setFormData({...formData, negativePrompt: e.target.value})}
+                              placeholder="blur, low quality, distorted, watermark..."
+                              rows={3}
+                              className="bg-wallcraft-card border-wallcraft-card text-foreground"
+                            />
+                          </div>
+                        )}
+
+                        {/* Wan AI - Seed, Negative Prompt, Enhance Prompt */}
+                        {previousData.model === "wan" && (
+                          <>
+                            <div>
+                              <Label htmlFor="wanSeed" className="text-lg font-semibold text-foreground mb-2 block">
+                                Seed Number
+                              </Label>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                Enter a seed value for reproducible results
+                              </p>
+                              <Input
+                                id="wanSeed"
+                                type="number"
+                                value={formData.wanSeed}
+                                onChange={(e) => setFormData({...formData, wanSeed: e.target.value})}
+                                placeholder="Enter seed number"
+                                className="bg-wallcraft-card border-wallcraft-card text-foreground"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="wanNegativePrompt" className="text-lg font-semibold text-foreground mb-2 block">
+                                Negative Prompt
+                              </Label>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                Specify what you don't want in the generated video
+                              </p>
+                              <Textarea
+                                id="wanNegativePrompt"
+                                value={formData.wanNegativePrompt}
+                                onChange={(e) => setFormData({...formData, wanNegativePrompt: e.target.value})}
+                                placeholder="blur, low quality, distorted, watermark..."
+                                rows={3}
+                                className="bg-wallcraft-card border-wallcraft-card text-foreground"
+                              />
+                            </div>
+                            <div className="flex items-center justify-between p-4 bg-wallcraft-card rounded-lg">
+                              <div>
+                                <Label htmlFor="wanEnhancePrompt" className="text-lg font-semibold text-foreground">
+                                  Enhance Prompt
+                                </Label>
+                                <p className="text-sm text-muted-foreground">
+                                  Automatically enhance and optimize your prompt
+                                </p>
+                              </div>
+                              <Switch
+                                id="wanEnhancePrompt"
+                                checked={formData.wanEnhancePrompt}
+                                onCheckedChange={(checked) => setFormData({...formData, wanEnhancePrompt: checked})}
+                              />
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
 
@@ -650,6 +731,66 @@ const AdminPromptFile = () => {
                       value={formData.hailuoVideoLink}
                       onChange={(e) => setFormData({...formData, hailuoVideoLink: e.target.value})}
                       placeholder="https://hailuo.video/share/..."
+                      className="bg-wallcraft-card border-wallcraft-card text-foreground"
+                    />
+                  </div>
+                )}
+
+                {/* Midjourney Video Link */}
+                {isVideoGeneration && previousData.model === "midjourney" && (
+                  <div>
+                    <Label htmlFor="midjourneyVideoLink" className="text-lg font-semibold text-foreground mb-2 block">
+                      Midjourney Video Share Link
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Copy and paste the Midjourney video share link to this example you provided. We do not share this link with anyone. You can unpublish this video from Midjourney once your prompt has been approved.
+                    </p>
+                    <Input
+                      id="midjourneyVideoLink"
+                      type="url"
+                      value={formData.midjourneyVideoLink}
+                      onChange={(e) => setFormData({...formData, midjourneyVideoLink: e.target.value})}
+                      placeholder="https://midjourney.com/share/..."
+                      className="bg-wallcraft-card border-wallcraft-card text-foreground"
+                    />
+                  </div>
+                )}
+
+                {/* Sora Video Link */}
+                {isVideoGeneration && previousData.model === "sora" && (
+                  <div>
+                    <Label htmlFor="soraVideoLink" className="text-lg font-semibold text-foreground mb-2 block">
+                      Sora Video Share Link
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Copy and paste the Sora video share link to this example you provided. We do not share this link with anyone. You can unpublish this video from Sora once your prompt has been approved.
+                    </p>
+                    <Input
+                      id="soraVideoLink"
+                      type="url"
+                      value={formData.soraVideoLink}
+                      onChange={(e) => setFormData({...formData, soraVideoLink: e.target.value})}
+                      placeholder="https://sora.com/share/..."
+                      className="bg-wallcraft-card border-wallcraft-card text-foreground"
+                    />
+                  </div>
+                )}
+
+                {/* Veo Video Link */}
+                {isVideoGeneration && previousData.model === "veo" && (
+                  <div>
+                    <Label htmlFor="veoVideoLink" className="text-lg font-semibold text-foreground mb-2 block">
+                      Veo Video Share Link
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Copy and paste the Veo video share link to this example you provided. We do not share this link with anyone. You can unpublish this video from Veo once your prompt has been approved.
+                    </p>
+                    <Input
+                      id="veoVideoLink"
+                      type="url"
+                      value={formData.veoVideoLink}
+                      onChange={(e) => setFormData({...formData, veoVideoLink: e.target.value})}
+                      placeholder="https://veo.google.com/share/..."
                       className="bg-wallcraft-card border-wallcraft-card text-foreground"
                     />
                   </div>
