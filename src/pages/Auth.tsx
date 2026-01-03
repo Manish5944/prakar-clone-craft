@@ -20,6 +20,20 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Handle tab switching - reset relevant states
+  const handleAuthMethodChange = (value: string) => {
+    const newMethod = value as "password" | "otp";
+    setAuthMethod(newMethod);
+    // Reset OTP-specific states when switching
+    setOtp("");
+    setOtpSent(false);
+    // Reset password when switching to OTP
+    if (newMethod === "otp") {
+      setPassword("");
+    }
+    // Keep email to avoid re-typing
+  };
+
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
@@ -42,30 +56,61 @@ const Auth = () => {
 
   // Check if user is already logged in
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          navigate("/");
+        }
+      }
+    );
+
+    // Check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
         navigate("/");
       }
     });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
+    
     const normalizedEmail = email.trim().toLowerCase();
+
+    // Validate email before sending
+    if (!normalizedEmail) {
+      toast({
+        title: "Email Required",
+        description: "कृपया email address दर्ज करें। / Please enter email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "कृपया valid email address दर्ज करें। / Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: normalizedEmail,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          shouldCreateUser: true,
         },
       });
 
       if (error) throw error;
-
-      // We rely on the built-in OTP email delivery.
 
       setOtpSent(true);
       toast({
@@ -73,9 +118,10 @@ const Auth = () => {
         description: "कृपया अपना email check करें। Prompt Copy से आया OTP दर्ज करें। / Please check your email for OTP from Prompt Copy.",
       });
     } catch (error: any) {
+      console.error("OTP send error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "OTP भेजने में error हुआ। / Failed to send OTP.",
         variant: "destructive",
       });
     } finally {
@@ -248,7 +294,7 @@ const Auth = () => {
             </span>
           </div>
 
-          <Tabs value={authMethod} onValueChange={(v) => setAuthMethod(v as "password" | "otp")} className="w-full">
+          <Tabs value={authMethod} onValueChange={handleAuthMethodChange} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="otp">OTP से Login</TabsTrigger>
               <TabsTrigger value="password">Password से Login</TabsTrigger>
