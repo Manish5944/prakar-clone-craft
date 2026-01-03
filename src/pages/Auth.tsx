@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Phone } from "lucide-react";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,22 +17,30 @@ const Auth = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [authMethod, setAuthMethod] = useState<"password" | "otp">("otp");
+  const [authMethod, setAuthMethod] = useState<"password" | "otp" | "phone">("otp");
+  
+  // Phone auth states
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneOtp, setPhoneOtp] = useState("");
+  const [phoneOtpSent, setPhoneOtpSent] = useState(false);
+  
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Handle tab switching - reset relevant states
   const handleAuthMethodChange = (value: string) => {
-    const newMethod = value as "password" | "otp";
+    const newMethod = value as "password" | "otp" | "phone";
     setAuthMethod(newMethod);
     // Reset OTP-specific states when switching
     setOtp("");
     setOtpSent(false);
+    setPhoneOtp("");
+    setPhoneOtpSent(false);
     // Reset password when switching to OTP
-    if (newMethod === "otp") {
+    if (newMethod === "otp" || newMethod === "phone") {
       setPassword("");
     }
-    // Keep email to avoid re-typing
+    // Keep email/phone to avoid re-typing
   };
 
   const handleGoogleLogin = async () => {
@@ -73,6 +82,122 @@ const Auth = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Phone number validation and formatting
+  const formatPhoneNumber = (phone: string): string => {
+    // Remove all non-digit characters except +
+    let cleaned = phone.replace(/[^\d+]/g, '');
+    
+    // If starts with 0, remove it and add +91
+    if (cleaned.startsWith('0')) {
+      cleaned = '+91' + cleaned.slice(1);
+    }
+    // If doesn't start with +, add +91
+    else if (!cleaned.startsWith('+')) {
+      cleaned = '+91' + cleaned;
+    }
+    
+    return cleaned;
+  };
+
+  const validatePhoneNumber = (phone: string): boolean => {
+    const formatted = formatPhoneNumber(phone);
+    // Check if it's a valid Indian phone number (+91 followed by 10 digits)
+    const phoneRegex = /^\+91[6-9]\d{9}$/;
+    return phoneRegex.test(formatted);
+  };
+
+  const handleSendPhoneOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!phoneNumber.trim()) {
+      toast({
+        title: "Phone Number Required",
+        description: "कृपया phone number दर्ज करें। / Please enter phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formattedPhone = formatPhoneNumber(phoneNumber);
+
+    if (!validatePhoneNumber(phoneNumber)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "कृपया valid 10 digit Indian phone number दर्ज करें। / Please enter a valid 10 digit Indian phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: formattedPhone,
+        options: {
+          shouldCreateUser: true,
+        },
+      });
+
+      if (error) throw error;
+
+      setPhoneOtpSent(true);
+      toast({
+        title: "OTP भेजा गया! / OTP Sent!",
+        description: `${formattedPhone} पर SMS OTP भेजा गया है। / SMS OTP sent to ${formattedPhone}.`,
+      });
+    } catch (error: any) {
+      console.error("Phone OTP send error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "OTP भेजने में error हुआ। / Failed to send OTP.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyPhoneOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (phoneOtp.length !== 6) {
+      toast({
+        title: "Invalid OTP",
+        description: "कृपया 6 digit OTP दर्ज करें। / Please enter 6 digit OTP.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const formattedPhone = formatPhoneNumber(phoneNumber);
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        phone: formattedPhone,
+        token: phoneOtp,
+        type: 'sms',
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "सफलतापूर्वक login हो गए! / Successfully logged in!",
+        description: "Welcome!",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "गलत OTP। कृपया दोबारा प्रयास करें। / Invalid OTP. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,6 +253,7 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length !== 6) {
@@ -295,12 +421,103 @@ const Auth = () => {
           </div>
 
           <Tabs value={authMethod} onValueChange={handleAuthMethodChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="otp">OTP से Login</TabsTrigger>
-              <TabsTrigger value="password">Password से Login</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="phone" className="text-xs sm:text-sm">
+                <Phone className="w-4 h-4 mr-1 hidden sm:inline" />
+                Phone
+              </TabsTrigger>
+              <TabsTrigger value="otp" className="text-xs sm:text-sm">Email OTP</TabsTrigger>
+              <TabsTrigger value="password" className="text-xs sm:text-sm">Password</TabsTrigger>
             </TabsList>
 
-            {/* OTP Authentication */}
+            {/* Phone OTP Authentication */}
+            <TabsContent value="phone" className="space-y-4">
+              {!phoneOtpSent ? (
+                <form onSubmit={handleSendPhoneOTP} className="space-y-4">
+                  <div>
+                    <label htmlFor="phone-number" className="block text-sm font-medium text-foreground mb-2">
+                      Phone Number (भारतीय नंबर)
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="flex items-center px-3 bg-muted rounded-md border border-border text-muted-foreground text-sm">
+                        +91
+                      </div>
+                      <Input
+                        id="phone-number"
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value.replace(/[^\d]/g, '').slice(0, 10))}
+                        required
+                        className="bg-wallcraft-darker border-wallcraft-card text-foreground flex-1"
+                        placeholder="9876543210"
+                        autoComplete="tel"
+                        maxLength={10}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      10 digit mobile number दर्ज करें
+                    </p>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={loading || phoneNumber.length !== 10}
+                    className="w-full bg-gradient-primary hover:opacity-90"
+                  >
+                    {loading ? "भेजा जा रहा है... / Sending..." : "SMS OTP भेजें / Send SMS OTP"}
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyPhoneOTP} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      OTP दर्ज करें / Enter OTP
+                    </label>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      +91{phoneNumber} पर भेजा गया SMS OTP दर्ज करें
+                    </p>
+                    <div className="flex justify-center">
+                      <InputOTP
+                        value={phoneOtp}
+                        onChange={setPhoneOtp}
+                        maxLength={6}
+                      >
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={loading || phoneOtp.length !== 6}
+                    className="w-full bg-gradient-primary hover:opacity-90"
+                  >
+                    {loading ? "Verify कर रहे हैं... / Verifying..." : "Verify करें और Login करें"}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setPhoneOtpSent(false);
+                      setPhoneOtp("");
+                    }}
+                    className="w-full"
+                  >
+                    दोबारा OTP भेजें / Resend OTP
+                  </Button>
+                </form>
+              )}
+            </TabsContent>
+
+            {/* Email OTP Authentication */}
             <TabsContent value="otp" className="space-y-4">
               {!otpSent ? (
                 <form onSubmit={handleSendOTP} className="space-y-4">
