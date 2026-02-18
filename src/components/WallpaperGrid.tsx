@@ -171,51 +171,26 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
             {searchQuery ? `No prompts found for "${searchQuery}"` : "No prompts available yet"}
           </p>
         </div>
-      ) : Object.keys(groupedPrompts).length > 0 ? (
-        <div className="space-y-12">
-          {Object.entries(groupedPrompts).map(([groupName, items]) => (
-            <div key={groupName}>
-              <h2 className="text-2xl font-bold text-foreground mb-6">{groupName} Prompts</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {items.map((prompt, index) => (
-                  <WallpaperCard
-                    key={prompt.id}
-                    id={prompt.id}
-                    image={prompt.image_url}
-                    title={prompt.title}
-                    category={prompt.category}
-                    views={prompt.views || 0}
-                    downloads={prompt.downloads || 0}
-                    likes={prompt.likes || 0}
-                    promptText={prompt.prompt_text || ""}
-                    price={prompt.price || 0}
-                    rating={prompt.rating || 0}
-                    rank={index < 15 ? index + 1 : undefined}
-                    exampleImages={prompt.example_images || []}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
           {prompts.map((prompt, index) => (
-            <WallpaperCard
-              key={prompt.id}
-              id={prompt.id}
-              image={prompt.image_url}
-              title={prompt.title}
-              category={prompt.category}
-              views={prompt.views || 0}
-              downloads={prompt.downloads || 0}
-              likes={prompt.likes || 0}
-              promptText={prompt.prompt_text || ""}
-              price={prompt.price || 0}
-              rating={prompt.rating || 0}
-              rank={index < 15 ? index + 1 : undefined}
-              exampleImages={prompt.example_images || []}
-            />
+            <div key={prompt.id} className="break-inside-avoid mb-4">
+              <WallpaperCard
+                id={prompt.id}
+                image={prompt.image_url}
+                title={prompt.title}
+                category={prompt.category}
+                views={prompt.views || 0}
+                downloads={prompt.downloads || 0}
+                likes={prompt.likes || 0}
+                promptText={prompt.prompt_text || ""}
+                price={prompt.price || 0}
+                rating={prompt.rating || 0}
+                rank={index < 15 ? index + 1 : undefined}
+                exampleImages={prompt.example_images || []}
+                promptId={prompt.id}
+              />
+            </div>
           ))}
         </div>
       )}
