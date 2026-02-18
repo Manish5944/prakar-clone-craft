@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Download, Heart, Eye, Star } from "lucide-react";
+import { ArrowLeft, Download, Heart, Eye, Star, Share2, Copy, Check, Expand } from "lucide-react";
 
 interface Prompt {
   id: string;
@@ -20,6 +20,7 @@ interface Prompt {
   views: number;
   downloads: number;
   likes: number;
+  user_id: string | null;
 }
 
 const PromptDetail = () => {
@@ -28,10 +29,17 @@ const PromptDetail = () => {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [imageExpanded, setImageExpanded] = useState(false);
 
   useEffect(() => {
     fetchPrompt();
   }, [id]);
+
+  useEffect(() => {
+    if (prompt) checkIfLiked();
+  }, [prompt]);
 
   const fetchPrompt = async () => {
     try {
@@ -43,22 +51,89 @@ const PromptDetail = () => {
 
       if (error) throw error;
       setPrompt(data);
+
+      // Increment view count
+      await supabase
+        .from('prompts')
+        .update({ views: (data.views || 0) + 1 })
+        .eq('id', id);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkIfLiked = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !prompt) return;
+    const { data } = await supabase
+      .from('favorites')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('prompt_id', prompt.id)
+      .maybeSingle();
+    setIsLiked(!!data);
+  };
+
+  const handleLike = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Login Required", description: "Please login to favorite prompts", variant: "destructive" });
+      return;
+    }
+    try {
+      if (isLiked) {
+        await supabase.from('favorites').delete().eq('user_id', user.id).eq('prompt_id', prompt!.id);
+        setIsLiked(false);
+        toast({ title: "Removed from favorites" });
+      } else {
+        await supabase.from('favorites').insert({ user_id: user.id, prompt_id: prompt!.id });
+        setIsLiked(true);
+        toast({ title: "Added to favorites!" });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleCopyPrompt = async () => {
+    if (!prompt?.prompt_text) return;
+    await navigator.clipboard.writeText(prompt.prompt_text);
+    setCopied(true);
+    toast({ title: "Copied!", description: "Prompt copied to clipboard" });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({ title: prompt?.title, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast({ title: "Link copied!", description: "Share link copied to clipboard" });
+    }
+  };
+
+  const handleDownload = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Login Required", description: "Please login to download", variant: "destructive" });
+      return;
+    }
+    try {
+      await supabase.from('downloads').insert({ user_id: user.id, prompt_id: prompt!.id });
+      toast({ title: "Downloaded!", description: "Prompt saved to your downloads" });
+    } catch (error) {
+      console.error(error);
     }
   };
 
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-wallcraft-dark flex items-center justify-center">
-          <p className="text-muted-foreground">Loading...</p>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
         </div>
       </Layout>
     );
@@ -67,7 +142,7 @@ const PromptDetail = () => {
   if (!prompt) {
     return (
       <Layout>
-        <div className="min-h-screen bg-wallcraft-dark flex items-center justify-center">
+        <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center">
             <p className="text-muted-foreground mb-4">Prompt not found</p>
             <Button onClick={() => navigate('/')}>Go Home</Button>
@@ -79,221 +154,229 @@ const PromptDetail = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-wallcraft-dark py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-7xl mx-auto">
-            {/* Back Button */}
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="mb-6"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - 9 Images Grid (2 columns) */}
-              <div className="lg:col-span-2">
-                {/* Main Title Section */}
-                <div className="mb-6">
-                  <Badge variant="secondary" className="mb-3">
-                    {prompt.category}
-                  </Badge>
-                  <h1 className="text-4xl font-bold text-foreground mb-4">
-                    {prompt.title}
-                  </h1>
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-2">
-                      <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-                      <span className="font-medium">{prompt.rating || 0}</span>
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <Eye className="h-5 w-5" />
-                      {prompt.views || 0} views
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <Download className="h-5 w-5" />
-                      {prompt.downloads || 0} downloads
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <Heart className="h-5 w-5" />
-                      {prompt.likes || 0} likes
-                    </span>
+          {/* Back Button */}
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+
+          {/* Main Layout: Left Image | Right Details */}
+          <div className="flex flex-col lg:flex-row gap-10">
+
+            {/* LEFT: Large Image */}
+            <div className="lg:w-[45%] flex-shrink-0">
+              <div className="relative group rounded-2xl overflow-hidden bg-wallcraft-card shadow-xl">
+                <img
+                  src={prompt.image_url}
+                  alt={prompt.title}
+                  className="w-full object-cover"
+                  style={{ maxHeight: '75vh', objectPosition: 'top' }}
+                />
+                {/* Expand button */}
+                <button
+                  onClick={() => setImageExpanded(true)}
+                  className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Expand className="h-4 w-4" />
+                </button>
+                {/* Action icons at bottom */}
+                <div className="absolute bottom-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={handleShare}
+                    className="bg-black/60 backdrop-blur-sm text-white p-2 rounded-lg"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleDownload}
+                    className="bg-black/60 backdrop-blur-sm text-white p-2 rounded-lg"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: Prompt Details */}
+            <div className="flex-1 min-w-0">
+
+              {/* Author / Posted info */}
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span className="text-primary font-bold text-sm">P</span>
+                  </div>
+                  <div>
+                    <p className="text-foreground font-semibold text-sm">@promptcopy</p>
+                    <p className="text-muted-foreground text-xs">Posted recently</p>
                   </div>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                  onClick={handleLike}
+                >
+                  <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                  {isLiked ? 'Favorited' : 'Favorite'}
+                </Button>
+              </div>
 
-                {/* High Quality Image Versions Section */}
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
-                    High quality image versions
-                  </h2>
-                  {prompt.example_images && prompt.example_images.length > 0 && (
-                    <div className="grid grid-cols-3 gap-3">
-                      {prompt.example_images.map((img, index) => (
-                        <div key={index} className="rounded-lg overflow-hidden aspect-square bg-wallcraft-card hover:scale-105 transition-transform cursor-pointer">
-                          <img 
-                            src={img} 
-                            alt={`Example ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))}
+              {/* Stats row */}
+              <div className="flex items-center gap-5 mb-6 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <Eye className="h-4 w-4" />
+                  {(prompt.views || 0).toLocaleString()} views
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Heart className="h-4 w-4" />
+                  {(prompt.likes || 0).toLocaleString()} favorites
+                </span>
+              </div>
+
+              {/* Model & Category info */}
+              <div className="grid grid-cols-2 gap-6 mb-6 pb-6 border-b border-border">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Model Used</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded bg-muted flex items-center justify-center">
+                      <span className="text-xs">🤖</span>
                     </div>
+                    <span className="text-foreground font-medium text-sm capitalize">{prompt.category}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Category</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded bg-muted flex items-center justify-center">
+                      <span className="text-xs">📁</span>
+                    </div>
+                    <span className="text-foreground font-medium text-sm">{prompt.category}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Generation Parameters */}
+              <div className="mb-6">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-3">Generation Parameters</p>
+                <div className="flex gap-2 flex-wrap">
+                  <Badge variant="secondary" className="gap-1 text-xs">
+                    🖼 Image
+                  </Badge>
+                  {prompt.rating > 0 && (
+                    <Badge variant="secondary" className="gap-1 text-xs">
+                      <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                      {prompt.rating.toFixed(1)} rating
+                    </Badge>
                   )}
                 </div>
+              </div>
 
-                {/* Prompt Template Section */}
-                {prompt.prompt_text && (
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-foreground mb-4">
-                      Prompt template
-                    </h2>
-                    <div className="bg-wallcraft-card border border-wallcraft-card rounded-lg p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <p className="text-sm text-muted-foreground font-medium">Copy prompt</p>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText(prompt.prompt_text);
-                            toast({
-                              title: "Copied!",
-                              description: "Prompt template copied to clipboard"
-                            });
-                          }}
-                        >
-                          Copy
-                        </Button>
-                      </div>
-                      <div className="bg-wallcraft-dark/50 p-4 rounded border border-wallcraft-card">
-                        <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed">
-                          {prompt.prompt_text}
-                        </pre>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Example Prompts Section */}
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-foreground mb-4">
-                    Example prompts
-                  </h2>
-                  <div className="space-y-4">
-                    {prompt.example_images && prompt.example_images.slice(0, 9).map((img, index) => (
-                      <div key={index} className="bg-wallcraft-card border border-wallcraft-card rounded-lg p-4">
-                        <div className="flex gap-4">
-                          <div className="w-20 h-20 rounded overflow-hidden flex-shrink-0">
-                            <img 
-                              src={img} 
-                              alt={`Example ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm text-foreground">
-                              {prompt.prompt_text?.replace(/\[.*?\]/g, (match) => {
-                                const examples = [
-                                  "Red Bull can", "Coca-Cola glass bottle", "Sprite plastic bottle",
-                                  "Fanta orange bottle", "Pepsi aluminum can", "Heineken beer bottle",
-                                  "San Pellegrino glass bottle", "Evian glass bottle", "Perrier bottle"
-                                ];
-                                return examples[index] || match;
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+              {/* PROMPT Section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Prompt</p>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-primary hover:text-primary">
+                      ✨ Try this prompt
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs gap-1"
+                      onClick={handleCopyPrompt}
+                    >
+                      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                      {copied ? 'Copied' : 'Copy'}
+                    </Button>
                   </div>
                 </div>
 
-                {/* Prompt Instructions Section */}
-                {prompt.description && (
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-foreground mb-4">
-                      Prompt instructions
-                    </h2>
-                    <div className="bg-wallcraft-card border border-wallcraft-card rounded-lg p-6">
-                      <div className="prose prose-invert max-w-none">
-                        <p className="text-muted-foreground leading-relaxed">
-                          {prompt.description}
-                        </p>
-                        <div className="mt-4 space-y-2">
-                          <p className="text-sm text-muted-foreground">
-                            <span className="font-semibold text-foreground">Replace each variable in square brackets with your own:</span>
-                          </p>
-                          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                            <li><code className="text-wallcraft-cyan">[main bottled beverage or product]</code> — e.g., "Red Bull can", "Perrier glass bottle"</li>
-                            <li><code className="text-wallcraft-cyan">[splashing elements or garnish]</code> — e.g., "lime slices and ice cubes", "tea leaves and peaches"</li>
-                            <li><code className="text-wallcraft-cyan">[floating accent ingredient or object]</code> — e.g., "mint leaves", "lightning arcs"</li>
-                            <li><code className="text-wallcraft-cyan">[background color or gradient]</code> — e.g., "teal-blue gradient", "deep neon purple"</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
+                {prompt.prompt_text ? (
+                  <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                    <p className="text-foreground text-sm leading-relaxed whitespace-pre-wrap font-mono">
+                      {prompt.prompt_text}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-muted/30 rounded-xl p-6 border border-dashed border-border text-center">
+                    <p className="text-muted-foreground text-sm">
+                      {prompt.price > 0
+                        ? `Purchase this prompt for $${prompt.price.toFixed(2)} to unlock the full prompt`
+                        : 'No prompt text available'}
+                    </p>
+                    {prompt.price > 0 && (
+                      <Button className="mt-3" size="sm" onClick={handleDownload}>
+                        Buy for ${prompt.price.toFixed(2)}
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
 
-              {/* Right Column - Sticky Sidebar */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-24">
-                  {/* Price Card */}
-                  <div className="bg-wallcraft-card border border-wallcraft-card rounded-lg p-6 mb-4">
-                    <div className="text-center mb-6">
-                      <p className="text-5xl font-bold text-primary mb-2">
-                        ${prompt.price || 0}
-                      </p>
-                      <p className="text-sm text-muted-foreground">One-time purchase</p>
-                    </div>
+              {/* Description */}
+              {prompt.description && (
+                <div className="mb-6 pb-6 border-b border-border">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-2">Description</p>
+                  <p className="text-foreground/80 text-sm leading-relaxed">{prompt.description}</p>
+                </div>
+              )}
 
-                    {/* Action Buttons */}
-                    <div className="space-y-3">
-                      <Button size="lg" className="w-full text-lg py-6">
-                        <Download className="h-5 w-5 mr-2" />
-                        Download Prompt
-                      </Button>
-                      <Button size="lg" variant="outline" className="w-full">
-                        <Heart className="h-5 w-5 mr-2" />
-                        Add to Favorites
-                      </Button>
-                    </div>
+              {/* Price & Action */}
+              <div className="bg-card border border-border rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-3xl font-bold text-foreground">
+                      {prompt.price > 0 ? `$${prompt.price.toFixed(2)}` : 'Free'}
+                    </p>
+                    {prompt.price > 0 && (
+                      <p className="text-xs text-muted-foreground">One-time purchase</p>
+                    )}
                   </div>
-
-                  {/* Info Card */}
-                  <div className="bg-wallcraft-card border border-wallcraft-card rounded-lg p-6">
-                    <h3 className="font-semibold text-foreground mb-4">What's included</h3>
-                    <ul className="space-y-3 text-sm text-muted-foreground">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5">✓</span>
-                        <span>Full prompt template</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5">✓</span>
-                        <span>9 example variations</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5">✓</span>
-                        <span>High-quality images</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5">✓</span>
-                        <span>Detailed instructions</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5">✓</span>
-                        <span>Commercial usage rights</span>
-                      </li>
-                    </ul>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="icon" onClick={handleShare}>
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={handleLike}>
+                      <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                    </Button>
                   </div>
                 </div>
+                <Button
+                  size="lg"
+                  className="w-full text-base font-semibold"
+                  onClick={prompt.price > 0 ? handleDownload : handleCopyPrompt}
+                >
+                  {prompt.price > 0 ? `Buy Prompt · $${prompt.price.toFixed(2)}` : 'Copy Prompt'}
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Full Image Lightbox */}
+      {imageExpanded && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setImageExpanded(false)}
+        >
+          <img
+            src={prompt.image_url}
+            alt={prompt.title}
+            className="max-w-full max-h-full object-contain rounded-xl"
+          />
+          <button
+            className="absolute top-4 right-4 text-white bg-white/20 rounded-full p-2"
+            onClick={() => setImageExpanded(false)}
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </Layout>
   );
 };
