@@ -1,5 +1,4 @@
 import { Heart, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
@@ -104,57 +103,53 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
 
   return (
     <div
-      className="group relative bg-wallcraft-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-card cursor-pointer w-full"
+      className="group relative overflow-hidden cursor-pointer w-full"
       onClick={handleCardClick}
     >
-      {/* Single Image - natural aspect ratio */}
-      <div className="relative overflow-hidden bg-wallcraft-darker">
+      {/* Image at natural aspect ratio — no forced crop, no fixed height */}
+      <div className="relative overflow-hidden">
         <img
           src={image}
           alt={title}
-          className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.02]"
+          loading="lazy"
         />
 
-        {/* Rank badge */}
+        {/* Rank badge — always visible */}
         {rank && rank <= 15 && (
-          <div className="absolute top-0 left-0 bg-gradient-to-br from-yellow-500 to-orange-500 text-foreground text-xs font-bold px-2 py-1 rounded-br-lg shadow-lg z-20">
+          <div className="absolute top-0 left-0 bg-gradient-to-br from-primary to-accent text-primary-foreground text-xs font-bold px-2 py-1 rounded-br-lg shadow-lg z-20">
             #{rank}
           </div>
         )}
 
-        {/* Rating badge */}
-        {rating > 0 && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 bg-background/70 backdrop-blur-sm px-2 py-1 rounded-full text-xs z-10">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-foreground font-semibold">{rating.toFixed(1)}</span>
-          </div>
-        )}
-
-        {/* Like button - appears on hover */}
+        {/* Like button — appears on hover */}
         <button
           onClick={handleLike}
-          className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-background/60 backdrop-blur-sm p-1.5 rounded-full z-10"
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-background/60 backdrop-blur-sm p-1.5 rounded-full z-10"
         >
           <Heart className={`h-4 w-4 ${isLiked ? 'fill-destructive text-destructive' : 'text-foreground'}`} />
         </button>
 
-        {/* Bottom gradient overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent p-3">
+        {/* Bottom overlay — slides up on hover */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/95 via-background/50 to-transparent p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-10">
           <p className="text-muted-foreground text-xs font-medium">{category}</p>
           <h3 className="text-foreground font-semibold text-sm line-clamp-2 mt-0.5 leading-tight">
             {title}
           </h3>
+          <div className="flex items-center justify-between mt-1.5">
+            {price > 0 ? (
+              <span className="text-primary font-bold text-xs">${price.toFixed(2)}</span>
+            ) : (
+              <span className="text-accent font-semibold text-xs px-1.5 py-0.5 bg-accent/10 rounded-full">FREE</span>
+            )}
+            {rating > 0 && (
+              <span className="flex items-center gap-0.5 text-muted-foreground text-xs">
+                <Star className="h-3 w-3 fill-primary text-primary" />
+                {rating.toFixed(1)}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Price row */}
-      <div className="px-3 py-2 bg-card flex items-center justify-between">
-        {price > 0 ? (
-          <span className="text-primary font-bold text-sm">${price.toFixed(2)}</span>
-        ) : (
-          <span className="text-green-400 font-semibold text-xs px-2 py-0.5 bg-green-400/10 rounded-full">FREE</span>
-        )}
-        <span className="text-muted-foreground text-xs">{views >= 1000 ? (views / 1000).toFixed(1) + 'K' : views} views</span>
       </div>
     </div>
   );
