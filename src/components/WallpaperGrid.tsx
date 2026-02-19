@@ -63,9 +63,9 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full px-1 py-2">
       {/* Filter Bar */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-3 px-3">
         <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" className="gap-2">
@@ -172,9 +172,9 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
           </p>
         </div>
       ) : (
-        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
+        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-[3px] space-y-0">
           {prompts.map((prompt, index) => (
-            <div key={prompt.id} className="break-inside-avoid mb-4">
+            <div key={prompt.id} className="break-inside-avoid mb-[3px]">
               <WallpaperCard
                 id={prompt.id}
                 image={prompt.image_url}
