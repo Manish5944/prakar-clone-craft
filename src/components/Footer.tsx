@@ -2,12 +2,12 @@ import { Instagram, MessageCircle, Twitter, Music, Github, Gamepad2 } from "luci
 
 const Footer = () => {
   return (
-    <footer className="bg-sidebar border-t border-sidebar-border mt-16">
+    <footer className="bg-wallcraft-darker border-t border-border mt-16">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Categories */}
           <div>
-            <h3 className="text-sidebar-foreground font-semibold mb-4 text-lg">CATEGORIES</h3>
+            <h3 className="text-foreground font-semibold mb-4 text-lg">CATEGORIES</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Best AI prompts</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Art & Illustration prompts</a></li>
@@ -23,7 +23,7 @@ const Footer = () => {
 
           {/* Models */}
           <div>
-            <h3 className="text-sidebar-foreground font-semibold mb-4 text-lg">MODELS</h3>
+            <h3 className="text-foreground font-semibold mb-4 text-lg">MODELS</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Image prompts</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Text prompts</a></li>
@@ -56,7 +56,7 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h3 className="text-sidebar-foreground font-semibold mb-4 text-lg">LINKS</h3>
+            <h3 className="text-foreground font-semibold mb-4 text-lg">LINKS</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Contact</a></li>
@@ -71,7 +71,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-sidebar-border mt-8 pt-8">
+        <div className="border-t border-border mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-muted-foreground text-sm">© PromptBase 2025</p>
             
