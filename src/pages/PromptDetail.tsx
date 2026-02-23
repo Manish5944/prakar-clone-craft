@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Download, Heart, Eye, Star, Share2, Copy, Check, Expand } from "lucide-react";
+import MarketplaceExplore from "@/components/MarketplaceExplore";
+import Footer from "@/components/Footer";
 
 interface Prompt {
   id: string;
@@ -357,6 +359,9 @@ const PromptDetail = () => {
           </div>
         </div>
       </div>
+
+      <MarketplaceExplore />
+      <Footer />
 
       {/* Full Image Lightbox */}
       {imageExpanded && (
