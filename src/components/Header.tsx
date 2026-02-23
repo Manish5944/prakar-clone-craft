@@ -1,4 +1,4 @@
-import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2, Send, User, LogOut, Bell, ShoppingBag } from "lucide-react";
+import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2, Send, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -12,6 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import NotificationPopover from "@/components/NotificationPopover";
+import ProfileDropdown from "@/components/ProfileDropdown";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -34,10 +36,6 @@ const Header = ({ onSearch }: HeaderProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
-  };
 
   const handleSearch = () => {
     if (searchQuery.trim() && onSearch) {
@@ -189,17 +187,9 @@ const Header = ({ onSearch }: HeaderProps) => {
           <div className="flex items-center gap-2">
             {user && (
               <>
+                <NotificationPopover />
                 <Button 
-                  variant="wallcraft-ghost" 
-                  size="icon" 
-                  className="text-white relative hover:bg-wallcraft-card"
-                  onClick={() => navigate("/notifications")}
-                  title="Notifications"
-                >
-                  <Bell className="h-5 w-5" />
-                </Button>
-                <Button 
-                  variant="wallcraft-ghost" 
+                  variant="ghost" 
                   size="icon" 
                   className="text-white relative hover:bg-wallcraft-card"
                   onClick={() => navigate("/purchases")}
@@ -211,30 +201,10 @@ const Header = ({ onSearch }: HeaderProps) => {
             )}
             
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="wallcraft-ghost" size="icon" className="text-white">
-                    <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5" />
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-wallcraft-card border-wallcraft-card" align="end">
-                  <DropdownMenuItem className="text-foreground hover:bg-wallcraft-card-hover">
-                    {user.email}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={handleLogout}
-                    className="text-foreground hover:bg-wallcraft-card-hover cursor-pointer"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ProfileDropdown user={user} />
             ) : (
               <Button 
-                variant="wallcraft-ghost" 
+                variant="ghost" 
                 onClick={() => navigate("/auth")}
                 className="text-foreground hover:text-foreground"
               >
