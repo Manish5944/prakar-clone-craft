@@ -6,12 +6,14 @@ import WallpaperGrid from "@/components/WallpaperGrid";
 import Layout from "@/components/Layout";
 import MarketplaceExplore from "@/components/MarketplaceExplore";
 import Footer from "@/components/Footer";
+import HeroSection from "@/components/HeroSection";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <Layout onSearch={setSearchQuery}>
+      <HeroSection />
       <WallpaperGrid searchQuery={searchQuery} />
       <MarketplaceExplore />
       <Footer />
