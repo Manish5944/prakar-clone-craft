@@ -151,13 +151,6 @@ const WallpaperGrid = ({ searchQuery = "" }: WallpaperGridProps) => {
           </SheetContent>
         </Sheet>
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Sort By</span>
-          <Button variant="outline" className="gap-2">
-            Popular
-            <ChevronDown size={16} />
-          </Button>
-        </div>
       </div>
 
       {/* Prompts Display */}
