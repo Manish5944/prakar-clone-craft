@@ -205,16 +205,17 @@ const PromptDetail = () => {
             {/* RIGHT: Prompt Details */}
             <div className="flex-1 min-w-0">
 
-              {/* Author / Posted info */}
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm">P</span>
-                  </div>
-                  <div>
-                    <p className="text-foreground font-semibold text-sm">@promptcopy</p>
-                    <p className="text-muted-foreground text-xs">Posted recently</p>
-                  </div>
+              {/* Stats & Favorite row */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-5 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Eye className="h-4 w-4" />
+                    {(prompt.views || 0).toLocaleString()} views
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Heart className="h-4 w-4" />
+                    {(prompt.likes || 0).toLocaleString()} favorites
+                  </span>
                 </div>
                 <Button
                   variant={isLiked ? "default" : "outline"}
@@ -227,17 +228,6 @@ const PromptDetail = () => {
                 </Button>
               </div>
 
-              {/* Stats row */}
-              <div className="flex items-center gap-5 mb-6 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <Eye className="h-4 w-4" />
-                  {(prompt.views || 0).toLocaleString()} views
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Heart className="h-4 w-4" />
-                  {(prompt.likes || 0).toLocaleString()} favorites
-                </span>
-              </div>
 
               {/* Model & Category info */}
               <div className="grid grid-cols-2 gap-6 mb-6 pb-6 border-b border-border">
