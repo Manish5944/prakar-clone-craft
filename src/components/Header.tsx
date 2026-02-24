@@ -1,7 +1,7 @@
 import { Search, Box, Palette, Grid3x3, Image, Pencil, Briefcase, Camera, Gamepad2, Send, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -151,14 +151,7 @@ const Header = ({ onSearch }: HeaderProps) => {
         {/* Top bar */}
         <div className="flex items-center justify-between py-3">
           <div className="flex items-center gap-4">
-            <SidebarTrigger className="text-white hover:bg-wallcraft-card">
-              <div className="flex flex-col gap-1">
-                <div className="w-5 h-0.5 bg-current"></div>
-                <div className="w-5 h-0.5 bg-current"></div>
-                <div className="w-5 h-0.5 bg-current"></div>
-              </div>
-            </SidebarTrigger>
-            <div className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <div className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
               Prompt Copy
             </div>
           </div>

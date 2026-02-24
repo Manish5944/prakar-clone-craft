@@ -1,5 +1,3 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
 import Header from "@/components/Header";
 import { ReactNode } from "react";
 
@@ -10,17 +8,14 @@ interface LayoutProps {
 
 const Layout = ({ children, onSearch }: LayoutProps) => {
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-wallcraft-darker">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col">
-          <Header onSearch={onSearch} />
-          <main className="flex-1">
-            {children}
-          </main>
-        </div>
+    <div className="min-h-screen flex w-full bg-wallcraft-darker">
+      <div className="flex-1 flex flex-col">
+        <Header onSearch={onSearch} />
+        <main className="flex-1">
+          {children}
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
 
