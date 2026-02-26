@@ -107,11 +107,11 @@ const WallpaperCard = ({ id, image, title, category, views, downloads, likes, pr
       onClick={handleCardClick}
     >
       {/* Image at natural aspect ratio — no forced crop, no fixed height */}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden rounded-xl">
         <img
           src={image}
           alt={title}
-          className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.02]"
+          className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.02] rounded-xl"
           loading="lazy"
         />
 
